@@ -1,4 +1,4 @@
-const Promise = require("./Promise");
+const Promise = require("../models/Promise");
 const Assessment = require("./Assessment");
 const {
   savePromise,
@@ -9,7 +9,7 @@ const {
   getAssessmentSummary,
 } = require("./Storage");
 
-const createPromise = (promiserId, domain, objective, days, stake) => {
+const createPromise = (promiserId, domain, objective, days, stakeType, stakeAmount) => {
   const promise = new Promise(
     promiserId,
     ["*"],
@@ -17,7 +17,7 @@ const createPromise = (promiserId, domain, objective, days, stake) => {
     objective,
     days,
     ["Success metric TBD"],
-    stake,
+    {type: stakeType, amount: stakeAmount}
   );
   savePromise(promise);
   console.log(`✓ Promise created: ${promise.id}`);
