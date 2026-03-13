@@ -14,8 +14,11 @@ app.use(express.json());
 app.use("/api/promises", promisesRouter);
 app.use("/api/assessments", assessmentsRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Only start listening if we are NOT running tests
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
 
 module.exports = app;
