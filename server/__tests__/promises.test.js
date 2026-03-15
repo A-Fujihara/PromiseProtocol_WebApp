@@ -16,7 +16,7 @@ describe("POST /api/promises", () => {
       domain: "health",
       objective: "run every day",
       days: 30,
-      stake: 10,
+      stake: { type: 'financial', amount: 10 },
     });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");

@@ -11,7 +11,7 @@
     "successCriteria": [
       "Success metric TBD"
     ],
-    "stake": 10,
+    "stake": {"type": "financial", "amount": 10},
     "createdAt": "2026-03-09T18:11:17.530Z",
     "status": "pending"
   }
