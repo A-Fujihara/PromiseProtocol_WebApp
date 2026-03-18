@@ -1,4 +1,6 @@
 class PromiseModel {
+  static PROMISEE_SCOPE_VALUES = ["self", "individual", "organization", "public"];
+
   constructor(
     promiserId,
     promiseeScope,
@@ -12,7 +14,7 @@ class PromiseModel {
   ) {
     this.id = this.generateId();
     this.promiserId = promiserId;
-    this.promiseeScope = promiseeScope;
+    this.promiseeScope = this.validatePromiseeScope(promiseeScope);
     this.domain = domain;
     this.objective = objective;
     this.timeline = timeline; // days
@@ -24,6 +26,21 @@ class PromiseModel {
 
   generateId() {
     return `prm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  validatePromiseeScope(promiseeScope) {
+    // promiseeScope must be one of the allowed enum values.
+    // Intentionally no legacy wildcard fallback (e.g. ["*"]).
+    if (typeof promiseeScope !== "string") {
+      throw new Error("Invalid promiseeScope");
+    }
+
+    const normalized = promiseeScope.trim().toLowerCase();
+    if (!PromiseModel.PROMISEE_SCOPE_VALUES.includes(normalized)) {
+      throw new Error("Invalid promiseeScope");
+    }
+
+    return normalized;
   }
 
   /**

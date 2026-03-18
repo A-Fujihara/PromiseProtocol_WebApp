@@ -2,11 +2,65 @@ const PromiseModel = require('../../models/PromiseModel');
 
 describe('Promise Data Model', () => {
   const defaultPromiser = 'user_123';
-  const defaultScope = ['*'];
+  const defaultScope = 'public';
   const defaultDomain = 'health';
   const defaultObjective = 'run 5 miles';
   const defaultTimeline = 30;
   const defaultCriteria = ['GPS tracked'];
+
+  describe('promiseeScope Validation', () => {
+    it.each(['self', 'individual', 'organization', 'public'])(
+      'should accept valid promiseeScope: %s',
+      (scope) => {
+        const promise = new PromiseModel(
+          defaultPromiser,
+          scope,
+          defaultDomain,
+          defaultObjective,
+          defaultTimeline,
+          defaultCriteria,
+          'financial',
+          10,
+        );
+
+        expect(promise.promiseeScope).toBe(scope);
+      }
+    );
+
+    it('should reject invalid promiseeScope', () => {
+      const instantiatePromise = () => {
+        new PromiseModel(
+          defaultPromiser,
+          'anyone',
+          defaultDomain,
+          defaultObjective,
+          defaultTimeline,
+          defaultCriteria,
+          'financial',
+          10,
+        );
+      };
+
+      expect(instantiatePromise).toThrow('Invalid promiseeScope');
+    });
+
+    it('should reject null promiseeScope', () => {
+      const instantiatePromise = () => {
+        new PromiseModel(
+          defaultPromiser,
+          null,
+          defaultDomain,
+          defaultObjective,
+          defaultTimeline,
+          defaultCriteria,
+          'financial',
+          10,
+        );
+      };
+
+      expect(instantiatePromise).toThrow('Invalid promiseeScope');
+    });
+  });
 
   describe('Stake Validation (PP-004)', () => {
 

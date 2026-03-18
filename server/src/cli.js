@@ -13,10 +13,18 @@ const {
   // 'stake' is now an object { type, amount, currency, status }. 
   // Passing this object into recordAssessment, slashStake, or doing math (stake * 2) will cause NaN/type errors.
 
-const createPromise = (promiserId, domain, objective, days, stakeType, stakeAmount) => {
+const createPromise = (
+  promiserId,
+  promiseeScope = null,
+  domain,
+  objective,
+  days,
+  stakeType,
+  stakeAmount,
+) => {
   const promise = new PromiseModel(
     promiserId,
-    ["*"],
+    promiseeScope,
     domain,
     objective,
     days,

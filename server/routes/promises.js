@@ -3,7 +3,7 @@ const router = express.Router();
 const { createPromise, listPromises } = require("../src/cli");
 
 router.post("/", (req, res) => {
-  const { promiserId, domain, objective, days, stake} = req.body;
+  const { promiserId, promiseeScope = null, domain, objective, days, stake } = req.body;
 
   if (!promiserId || !domain || !objective || !days || !stake || !stake.type || stake.amount === undefined) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -11,7 +11,15 @@ router.post("/", (req, res) => {
 
 try {
     // 2. Execution: Pass the nested properties as separate arguments
-    const promise = createPromise(promiserId, domain, objective, days, stake.type, stake.amount);
+    const promise = createPromise(
+      promiserId,
+      promiseeScope,
+      domain,
+      objective,
+      days,
+      stake.type,
+      stake.amount
+    );
     return res.status(201).json(promise);
   } catch (error) {
     // Catch any validation errors thrown by your new Promise model

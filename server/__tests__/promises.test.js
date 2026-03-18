@@ -13,6 +13,7 @@ describe("POST /api/promises", () => {
   it("should create a promise and return 201", async () => {
     const res = await request(app).post("/api/promises").send({
       promiserId: "user_001",
+      promiseeScope: "public",
       domain: "health",
       objective: "run every day",
       days: 30,
@@ -21,6 +22,21 @@ describe("POST /api/promises", () => {
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");
     expect(res.body.promiserId).toBe("user_001");
+  });
+
+  it("should return 400 for invalid promiseeScope", async () => {
+    const res = await request(app).post("/api/promises").send({
+      promiserId: "user_001",
+      promiseeScope: "anyone",
+      domain: "health",
+      objective: "run every day",
+      days: 30,
+      stake: { type: 'financial', amount: 10 },
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
+    expect(res.body.error).toBe("Invalid promiseeScope");
   });
 
   it("should return 400 if required fields are missing", async () => {
