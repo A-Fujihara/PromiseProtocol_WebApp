@@ -64,3 +64,7 @@
 ```
 
 5. Server will be running at http://localhost:3001
+
+## Dependencies
+
+- **Axios:** [axios-http.com](https://axios-http.com/)
