@@ -11,8 +11,27 @@
     "successCriteria": [
       "Success metric TBD"
     ],
-    "stake": {"type": "financial", "amount": 10},
+    "stake": {
+      "type": "financial",
+      "amount": 10
+    },
     "createdAt": "2026-03-09T18:11:17.530Z",
+    "status": "pending"
+  },
+  {
+    "id": "prm_1775837594241_m91n14d76",
+    "promiserId": "dev_user_001",
+    "promiseeScope": "individual",
+    "domain": "Web Dev",
+    "objective": "Build the dashboard screen",
+    "timeline": 30,
+    "successCriteria": "Dashboard renders with real data",
+    "stake": {
+      "type": "reputational",
+      "amount": null,
+      "status": "held"
+    },
+    "createdAt": "2026-04-10T16:13:14.241Z",
     "status": "pending"
   }
 ]

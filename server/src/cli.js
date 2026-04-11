@@ -12,7 +12,6 @@ const {
 // TODO (Tech Debt): Refactor assessment, merit, and ledger logic.
 // 'stake' is now an object { type, amount, currency, status }.
 // Passing this object into recordAssessment, slashStake, or doing math (stake * 2) will cause NaN/type errors.
-
 const createPromise = (
   promiserId,
   promiseeScope = null,
@@ -43,7 +42,7 @@ const listPromises = (filters = {}) => {
   console.log("\n=== Promises ===");
   if (promises.length === 0) {
     console.log("No promises found.");
-    return;
+    return [];
   }
   promises.forEach((p) => {
     const summary = getAssessmentSummary(p.id);
@@ -51,6 +50,7 @@ const listPromises = (filters = {}) => {
       `Promise ${p.id} | ${summary.kept} KEPT, ${summary.broken} BROKEN`,
     );
   });
+  return promises;
 };
 
 const submitAssessment = (
@@ -97,7 +97,7 @@ const listAssessments = (filters = {}) => {
   console.log("\n=== Assessments ===");
   if (assessments.length === 0) {
     console.log("No assessments found.");
-    return;
+    return [];
   }
   assessments.forEach((a) => {
     const assessorId = a.assessorId || "Unknown";
@@ -109,6 +109,7 @@ const listAssessments = (filters = {}) => {
       `${a.id} | PromiseID: ${a.promiseId} | Assessor: ${assessorId} | Verdict: ${a.judgment} | Stake: ${stake} | Date: ${date}`,
     );
   });
+  return assessments;
 };
 
 module.exports = {
