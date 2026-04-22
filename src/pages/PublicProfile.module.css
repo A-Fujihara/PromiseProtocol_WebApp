@@ -1,0 +1,59 @@
+.container {
+  padding: 40px 48px;
+  background: #09090c;
+  min-height: 100vh;
+  color: #e8e8ec;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.copyBtn {
+  background: #4fc3f7;
+  color: #09090c;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.statsGrid, .breakdownGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.statCard {
+  background: #111116;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.label {
+  font-size: 10px;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.value {
+  font-size: 36px;
+  font-weight: 900;
+}
+
+.breakdownLabel {
+  color: #888;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
