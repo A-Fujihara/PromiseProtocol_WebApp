@@ -1,0 +1,223 @@
+.container {
+  padding: 40px 48px;
+  height: 100vh;
+  width: 100%;
+  background: #09090c;
+  color: #e8e8ec;
+  font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+  overflow-y: auto;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #09090c;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #888;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 0;
+  margin-bottom: 28px;
+}
+
+.backButton:hover {
+  color: #e8e8ec;
+}
+
+.content {
+  max-width: 680px;
+  width: 100%;
+}
+
+.promiseCard {
+  background: #111116;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.statusBar {
+  height: 4px;
+  opacity: 0.8;
+}
+
+.promiseCardBody {
+  padding: 28px 30px;
+}
+
+.promiseCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.domainRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.domain {
+  font-size: 11px;
+  color: #4fc3f7;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.arrow {
+  color: #444;
+  font-size: 12px;
+}
+
+.promisee {
+  font-size: 12px;
+  color: #888;
+}
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.objective {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e8e8ec;
+  line-height: 1.4;
+  margin-bottom: 22px;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+.metaItem {
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.metaLabel {
+  font-size: 10px;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 6px;
+}
+
+.metaValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e8e8ec;
+}
+
+.assessmentsCard {
+  background: #111116;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.assessmentsHeader {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 14px;
+  font-weight: 700;
+  color: #e8e8ec;
+}
+
+.assessmentRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.assessorName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8e8ec;
+  margin-bottom: 4px;
+}
+
+.assessmentDate {
+  font-size: 12px;
+  color: #888;
+}
+
+.emptyAssessments {
+  padding: 32px 24px;
+  text-align: center;
+  color: #444;
+  font-size: 13px;
+}
+
+.ctaCard {
+  border-radius: 14px;
+  padding: 22px 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(79, 195, 247, 0.1);
+  border: 1px solid rgba(79, 195, 247, 0.25);
+}
+
+.ctaTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e8e8ec;
+  margin-bottom: 4px;
+}
+
+.ctaSubtitle {
+  font-size: 12px;
+  color: #888;
+}
+
+.ctaButton {
+  padding: 10px 20px;
+  background: #4fc3f7;
+  color: #09090c;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.mutedText {
+  color: #444;
+  font-size: 13px;
+}
+
+.errorText {
+  color: #e05252;
+  font-size: 13px;
+}
+
+.notFound {
+  font-size: 14px;
+  color: #888;
+}

@@ -1,19 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import PublicProfile from './pages/PublicProfile'; // You'll create this next
+import PublicProfile from './pages/PublicProfile';
+import PromiseDetail from './pages/PromiseDetail';
 import './App.css';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* The landing page for the app */}
+        {/* Landing Dashboard */}
         <Route path="/" element={<Dashboard />} />
         
-        {/* Your PP-011 Route using the promiserId parameter  */}
+        {/* PP-011: Public Profile Route */}
         <Route path="/profile/:promiserId" element={<PublicProfile />} />
         
-        {/* Fallback to redirect users back to the dashboard if they hit a dead link */}
+        {/* PP-010: Promise Detail Route (Angela's code, wired in) */}
+        <Route path="/promise/:promiseId" element={<PromiseDetail />} />
+        
+        {/* Fallback Redirect */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
