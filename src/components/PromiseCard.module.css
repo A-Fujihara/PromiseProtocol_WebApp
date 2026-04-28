@@ -3,6 +3,17 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.selectableCard {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.selectableCard:hover {
+  border-color: #4fc3f7;
+  border: 1;
+  background-color: #888;
+}
+
 .statusBar {
   width: 3px;
   flex-shrink: 0;
@@ -56,4 +67,15 @@
 .stakeIcon {
   color: #4fc3f7;
   font-weight: 700;
+}
+
+.dateAdded {
+  font-size: 11px;
+  color: #888;
+}
+
+.domainRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
