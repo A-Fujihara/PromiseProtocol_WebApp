@@ -3,7 +3,6 @@ import httpService from './httpService';
 export const getPromises = async () => {
   try {
     const res = await httpService.get('/api/promises');
-    console.log(res.data);
     return res.data;
   } catch (error) {
     throw {

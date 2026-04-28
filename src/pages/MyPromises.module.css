@@ -37,21 +37,6 @@
   margin-top: 4px;
 }
 
-.newPromiseButton {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: #4fc3f7;
-  color: #09090c;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-}
-
 .statsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -143,16 +128,43 @@
   font-size: 13px;
 }
 
-.filter {
+.filterSelected {
   padding: 3px 10px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  color: #4fc3f7;
+  background-color: rgba(79, 195, 247, 0.1);
+  border-color: #4fc3f7;
 }
 
-.filter:hover {
+.filterUnselected {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #444;
+  background-color: rgba(79, 195, 247, 0.1);
+  border-color: #444;
+}
+
+.filterUnselected:hover {
   border-color: #4fc3f7;
   background-color: #888;
+}
+
+.filterRow {
+  display: flex;
+  flex-direction: row;
+  gap: 4;
+}
+
+.promisesList {
+  display: flex;
+  flex-direction: column;
+  gap: 4;
 }

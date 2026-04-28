@@ -12,7 +12,7 @@ const StatusSearchFilter = Object.freeze({
 
 export default function MyPromises() {
   const [promises, setPromises] = useState([]);
-  const [filter, setFilter] = useState(StatusSearchFilter.All);
+  const [selectedFilter, setSelectedFilter] = useState(StatusSearchFilter.All);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -32,7 +32,7 @@ export default function MyPromises() {
   }, []);
 
   const checkFilter = (promise) => {
-    switch (filter) {
+    switch (selectedFilter) {
       case StatusSearchFilter.All:
         return true;
       case StatusSearchFilter.Active:
@@ -57,21 +57,24 @@ export default function MyPromises() {
     <div className={styles.container}>
       <h1 className={styles.heading}>My Promises</h1>
       <p className={styles.subheading}>{promises.length} Total Commitments</p>
-      <div>
+      <div className={styles.filterRow}>
         {Object.entries(StatusSearchFilter).map((filter) => {
           return (
-            <span
+            <button
               key={filter[1]}
-              className={styles.filter}
-              style={{
-                color: '#4FC3F7',
-                background: 'rgba(79,195,247,0.10)',
-                border: '#4FC3F7',
+              className={
+                selectedFilter === StatusSearchFilter[filter[0]]
+                  ? styles.filterSelected
+                  : styles.filterUnselected
+              }
+              onClick={() => {
+                if (selectedFilter !== StatusSearchFilter[filter[0]]) {
+                  setSelectedFilter(StatusSearchFilter[filter[0]]);
+                }
               }}
-              onClick={() => setFilter(StatusSearchFilter[filter[0]])}
             >
               {filter[0]}
-            </span>
+            </button>
           );
         })}
       </div>
@@ -82,20 +85,22 @@ export default function MyPromises() {
           </p>
         </div>
       ) : (
-        promises.map((promise) => {
-          console.log(promise);
-          const filterCheck = checkFilter(promise);
-          if (filterCheck) {
-            return (
-              <PromiseCard
-                promise={promise}
-                showNavigateToDetails={true}
-                showPromiserId={true}
-                showDateAdded={true}
-              />
-            );
-          }
-        })
+        <div className={styles.promisesList}>
+          {promises.map((promise) => {
+            const filterCheck = checkFilter(promise);
+            if (filterCheck) {
+              return (
+                <PromiseCard
+                  key={promise.id}
+                  promise={promise}
+                  showNavigateToDetails={true}
+                  showPromiserId={true}
+                  showDateAdded={true}
+                />
+              );
+            }
+          })}
+        </div>
       )}
     </div>
   );
