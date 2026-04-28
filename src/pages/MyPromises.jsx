@@ -36,27 +36,22 @@ export default function MyPromises() {
       case StatusSearchFilter.All:
         return true;
       case StatusSearchFilter.Active:
-        if (promise.status === 'pending') {
-          return true;
-        }
-        return false;
+        return promise.status === 'pending';
       case StatusSearchFilter.Kept:
-        if (promise.status === 'KEPT') {
-          return true;
-        }
-        return false;
+        return promise.status === 'KEPT';
       case StatusSearchFilter.Broken:
-        if (promise.status === 'BROKEN') {
-          return true;
-        }
+        return promise.status === 'BROKEN';
+      default:
         return false;
     }
   };
 
+  const filteredPromises = promises.filter(checkFilter);
+
   return (
-    <div className={styles.container}>
-      <h1 className={styles.heading}>My Promises</h1>
-      <p className={styles.subheading}>{promises.length} Total Commitments</p>
+    <div className={styles.page}>
+      <h1 className={styles.title}>My Promises</h1>
+      <p className={styles.subtitle}>{promises.length} Total Commitments</p>
       <div className={styles.filterRow}>
         {Object.entries(StatusSearchFilter).map((filter) => {
           return (
@@ -64,8 +59,8 @@ export default function MyPromises() {
               key={filter[1]}
               className={
                 selectedFilter === StatusSearchFilter[filter[0]]
-                  ? styles.filterSelected
-                  : styles.filterUnselected
+                  ? styles.filterBtnActive
+                  : styles.filterBtn
               }
               onClick={() => {
                 if (selectedFilter !== StatusSearchFilter[filter[0]]) {
@@ -78,28 +73,29 @@ export default function MyPromises() {
           );
         })}
       </div>
-      {promises.length === 0 ? (
+      {loading && <div className={styles.loadingState}>Loading...</div>}
+      {error && <div className={styles.errorState}>{error}</div>}
+      {!loading && !error && promises.length === 0 ? (
         <div className={styles.emptyState}>
-          <p className={styles.mutedText}>
-            No commitments yet. Create your first one!
+          <p className={styles.emptyTitle}>No commitments yet.</p>
+        </div>
+      ) : !loading && !error && filteredPromises.length === 0 ? (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyTitle}>
+            No commitments match the selected filter. Try another status.
           </p>
         </div>
       ) : (
-        <div className={styles.promisesList}>
-          {promises.map((promise) => {
-            const filterCheck = checkFilter(promise);
-            if (filterCheck) {
-              return (
-                <PromiseCard
-                  key={promise.id}
-                  promise={promise}
-                  showNavigateToDetails={true}
-                  showPromiserId={true}
-                  showDateAdded={true}
-                />
-              );
-            }
-          })}
+        <div className={styles.promiseList}>
+          {filteredPromises.map((promise) => (
+            <PromiseCard
+              key={promise.id}
+              promise={promise}
+              showNavigateToDetails={true}
+              showPromiserId={true}
+              showDateAdded={true}
+            />
+          ))}
         </div>
       )}
     </div>

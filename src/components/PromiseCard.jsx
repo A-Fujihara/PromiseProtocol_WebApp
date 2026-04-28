@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react';
 import styles from './PromiseCard.module.css';
+
+const DAYS_TO_MS = 86400000;
 
 export const STATUS = {
   pending: { label: 'Active', color: '#4FC3F7', bg: 'rgba(79,195,247,0.10)' },
@@ -12,6 +15,9 @@ export default function PromiseCard({
   showPromiserId = false,
   showDateAdded = false,
 }) {
+  const [dateAddedStr, setDateAddedStr] = useState('');
+  const [daysLeftNum, setDaysLeftNum] = useState(0);
+
   const status = promise.status || 'pending';
   const cfg = STATUS[status] || STATUS.pending;
 
@@ -19,15 +25,31 @@ export default function PromiseCard({
     console.log('Navigate to Promise Detail — wired in Epic 3');
   };
 
+  useEffect(() => {
+    if (showDateAdded) {
+      // Formatting createdAt with Date
+      const dateAdded = new Date(promise.createdAt);
+
+      // Calculating days left
+      const timeline = new Date();
+      timeline.setTime(dateAdded.getTime() + promise.timeline * DAYS_TO_MS);
+      const daysLeft = new Date();
+      daysLeft.setTime(timeline.getTime() - Date.now());
+
+      setDateAddedStr(dateAdded.toDateString());
+      setDaysLeftNum(daysLeft.getTime() <= 0 ? 0 : daysLeft.getDate());
+    }
+  }, [showDateAdded]);
+
   return (
     <div
       className={showNavigateToDetails ? styles.selectableCard : styles.card}
-      onClick={showNavigateToDetails && navigateToDetailPage}
+      onClick={showNavigateToDetails ? navigateToDetailPage : () => {}}
     >
-      <div className={styles.statusBar} style={{ background: cfg.color }} />
-      <div className={styles.content}>
-        <div className={styles.cardHeader}>
-          <div className={styles.domainRow}>
+      <div className={styles.cardAccent} style={{ background: cfg.color }} />
+      <div className={styles.cardBody}>
+        <div className={styles.cardTopRow}>
+          <div className={styles.cardMeta}>
             <span className={styles.domain}>{promise.domain}</span>
             {showPromiserId && (
               <>
@@ -44,17 +66,28 @@ export default function PromiseCard({
           </span>
         </div>
         <div className={styles.objective}>{promise.objective}</div>
-        <span className={styles.stakeChip}>
-          <span className={styles.stakeIcon}>
-            {promise.stake.type === 'financial' ? '$' : '◎'}
+        <div className={styles.cardBottomRow}>
+          <div className={styles.cardFooterLeft}>
+            <span className={styles.stakeChip}>
+              <span className={styles.stakeIcon}>
+                {promise.stake.type === 'financial' ? '$' : '◎'}
+              </span>
+              {promise.stake.type === 'financial'
+                ? `$${promise.stake.amount} deposited`
+                : 'Reputation deposited'}
+            </span>
+            {showDateAdded && (
+              <span className={styles.createdAt}>Created {dateAddedStr}</span>
+            )}
+          </div>
+          <span
+            className={
+              daysLeftNum < 7 ? styles.daysUrgent : styles.daysRemaining
+            }
+          >
+            {daysLeftNum}d left
           </span>
-          {promise.stake.type === 'financial'
-            ? `$${promise.stake.amount} deposited`
-            : 'Reputation deposited'}
-        </span>
-        {showDateAdded && (
-          <span className={styles.dateAdded}>Created {promise.createdAt}</span>
-        )}
+        </div>
       </div>
     </div>
   );
