@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPromises, getAssessments } from '../services/api';
-import RecentPromiseCard from '../components/RecentPromiseCard';
+import PromiseCard from '../components/PromiseCard';
 import styles from './Dashboard.module.css';
 
 const CURRENT_USER = 'dev_user_001'; // Epic 4 Auth stub
@@ -145,7 +145,7 @@ export default function Dashboard() {
           </div>
         ) : (
           recentWithDerivedStatus.map((promise) => (
-            <RecentPromiseCard key={promise.id} promise={promise} />
+            <PromiseCard key={promise.id} promise={promise} />
           ))
         )}
       </div>
