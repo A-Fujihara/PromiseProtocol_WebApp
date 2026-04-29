@@ -23,6 +23,7 @@
 }
 
 .selectableCard:hover {
+  border-color: #4fc3f7;
   background: #16161d;
 }
 

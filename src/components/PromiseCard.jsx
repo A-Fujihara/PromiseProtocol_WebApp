@@ -33,13 +33,12 @@ export default function PromiseCard({
       // Calculating days left
       const timeline = new Date();
       timeline.setTime(dateAdded.getTime() + promise.timeline * DAYS_TO_MS);
-      const daysLeft = new Date();
-      daysLeft.setTime(timeline.getTime() - Date.now());
+      const msLeft = timeline.getTime() - Date.now();
 
       setDateAddedStr(dateAdded.toDateString());
-      setDaysLeftNum(daysLeft.getTime() <= 0 ? 0 : daysLeft.getDate());
+      setDaysLeftNum(msLeft <= 0 ? 0 : Math.ceil(msLeft / DAYS_TO_MS));
     }
-  }, [showDateAdded]);
+  }, [showDateAdded, promise.timeline, promise.createdAt]);
 
   return (
     <div
