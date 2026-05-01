@@ -1,0 +1,100 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px;
+  color: #f4f5ff;
+}
+
+.card {
+  width: 100%;
+  max-width: 680px;
+  background: #151723;
+  border: 1px solid #2a2f45;
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.heading {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.subheading {
+  color: #b7bdd6;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form input,
+.form select,
+.form textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #3a4260;
+  padding: 10px 12px;
+  background: #101321;
+  color: #f4f5ff;
+}
+
+.form textarea {
+  resize: vertical;
+}
+
+.fieldset {
+  margin-top: 8px;
+  border: 1px solid #3a4260;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  gap: 24px;
+}
+
+.inlineOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inlineOption input {
+  width: auto;
+}
+
+.submitButton {
+  margin-top: 12px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #3f7cff;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submitButton:disabled {
+  background: #2c4e99;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #ff9ba5;
+  font-size: 14px;
+}
+
+.success {
+  color: #7ee787;
+  margin-top: 12px;
+  font-weight: 600;
+}
