@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { getPromises, getAssessments } from '../services/api';
 import styles from './PublicProfile.module.css';
 
+// Epic 4 stub: replace with real authenticated user ID when auth is implemented
+const CURRENT_USER = 'dev_user_001';
+const SHAREABLE_URL = `promiseprotocol.com/profile/${CURRENT_USER}`;
+
 export default function PublicProfile() {
-  const { promiserId } = useParams();
-  
-  const [data, setData] = useState({
-    promises: [],
-    breakdown: { active: 0, kept: 0, broken: 0 },
-    keptRate: '--'
-  });
+  const [promises, setPromises] = useState([]);
+  const [breakdown, setBreakdown] = useState({ active: 0, kept: 0, broken: 0 });
+  const [keptRate, setKeptRate] = useState('--');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -21,81 +20,193 @@ export default function PublicProfile() {
         const [allPromises, allAssessments] = await Promise.all([
           getPromises(),
           getAssessments(),
-        ]);
+        ]); // Filter to current user's promises only
 
-        // Filter data to only this user [cite: 209]
-        const userPromises = allPromises.filter(p => p.promiserId === promiserId);
-        const userPromiseIds = userPromises.map(p => p.id);
-        const userAssessments = allAssessments.filter(a => userPromiseIds.includes(a.promiseId));
+        const userPromises = allPromises.filter(
+          (p) => p.promiserId === CURRENT_USER
+        );
+        const userPromiseIds = userPromises.map((p) => p.id); // Filter assessments to only those against the current user's promises
 
-        // Derive Breakdown [cite: 220, 233]
-        const active = userPromises.filter(p => p.status === 'pending').length;
-        const kept = userPromises.filter(p => p.status === 'KEPT').length;
-        const broken = userPromises.filter(p => p.status === 'BROKEN').length;
+        const userAssessments = allAssessments.filter((a) =>
+          userPromiseIds.includes(a.promiseId)
+        ); // Derive breakdown counts
+        // Active: promises still pending
+        // Kept/Broken: derived from assessment judgments, not promise.status
 
-        // Calculate Kept Rate % [cite: 211, 219, 232]
+        const active = userPromises.filter(
+          (p) => p.status === 'pending'
+        ).length;
+        const keptCount = userAssessments.filter(
+          (a) => a.judgment === 'KEPT'
+        ).length;
+        const brokenCount = userAssessments.filter(
+          (a) => a.judgment === 'BROKEN'
+        ).length; // Calculate kept rate percentage
+
         const totalAssessments = userAssessments.length;
-        const keptAssessments = userAssessments.filter(a => a.judgment === 'KEPT').length;
-        const keptRate = totalAssessments > 0 
-          ? Math.round((keptAssessments / totalAssessments) * 100) + '%'
-          : '--';
+        const keptAssessments = userAssessments.filter(
+          (a) => a.judgment === 'KEPT'
+        ).length;
+        const calculatedKeptRate =
+          totalAssessments > 0
+            ? Math.round((keptAssessments / totalAssessments) * 100) + '%'
+            : '--';
 
-        setData({ promises: userPromises, breakdown: { active, kept, broken }, keptRate });
+        setPromises(userPromises);
+        setBreakdown({ active, kept: keptCount, broken: brokenCount });
+        setKeptRate(calculatedKeptRate);
       } catch (err) {
-        setError('Failed to load profile data.');
+        setError('Failed to load profile data. Please try again.');
       } finally {
         setLoading(false);
       }
     }
-    if (promiserId) fetchProfileData();
-  }, [promiserId]);
+
+    fetchProfileData();
+  }, []);
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(SHAREABLE_URL);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
   };
 
-  if (loading) return <div className={styles.centered}>Loading...</div>;
-  if (error) return <div className={styles.centered}>{error}</div>;
+  if (loading) {
+    return (
+      <div className={styles.centered}>
+                <p className={styles.mutedText}>Loading...</p>
+              
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.centered}>
+                <p className={styles.errorText}>{error}</p>
+              
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1>Profile: {promiserId}</h1>
-        <button className={styles.copyBtn} onClick={handleCopyLink}>
-          {copied ? 'Copied!' : 'Copy Link'}
+            {/* Profile Header */}
+            
+      <div className={styles.profileCard}>
+                <div className={styles.avatar}>J</div>
+                
+        <div className={styles.profileInfo}>
+                    <h1 className={styles.profileName}>Jordan Lee</h1>
+                    
+          <p className={styles.profileRole}>Freelance Developer & Designer</p>
+                  
+        </div>
+                
+        <button className={styles.shareButton} onClick={handleCopyLink}>
+                    {copied ? 'Copied!' : 'Share Profile :arrow_upper_right:'}
+                  
         </button>
-      </header>
-
-      <section className={styles.statsGrid}>
+              
+      </div>
+            {/* Reputation Score & Kept Rate */}
+            
+      <div className={styles.statsGrid}>
+                
         <div className={styles.statCard}>
-          <span className={styles.label}>Reputation Score</span>
-          <span className={styles.value}>--</span> {/* stubbed per AC [cite: 212] */}
+                    <div className={styles.statLabel}>Reputation Score</div>
+                    <div className={styles.statValue}>--</div>
+                    <div className={styles.statSub}>Pending algorithm</div>
+                  
         </div>
+                
         <div className={styles.statCard}>
-          <span className={styles.label}>Kept Rate</span>
-          <span className={styles.value}>{data.keptRate}</span>
+                    <div className={styles.statLabel}>Promise Kept Rate</div>
+                    
+          <div className={`${styles.statValue} ${styles.statValueGreen}`}>
+                        {keptRate}
+                      
+          </div>
+                    
+          <div className={styles.statSub}>
+                        
+            {keptRate === '--'
+              ? 'No assessments yet'
+              : `${breakdown.kept} kept of ${promises.length} total`}
+                      
+          </div>
+                  
         </div>
-      </section>
-
-      <div className={styles.breakdownLabel}>Promise Breakdown</div>
-      <section className={styles.breakdownGrid}>
-        <div className={styles.statCard}>
-          <span className={styles.label}>Active</span>
-          <span className={styles.value}>{data.breakdown.active}</span>
+              
+      </div>
+            {/* Promise Breakdown */}
+            
+      <div className={styles.breakdownCard}>
+                <div className={styles.breakdownHeader}>Promise Breakdown</div>
+                
+        {[
+          { label: 'Active', value: breakdown.active, color: '#4FC3F7' },
+          { label: 'Kept', value: breakdown.kept, color: '#4CAF82' },
+          { label: 'Broken', value: breakdown.broken, color: '#E05252' },
+        ].map((item) => (
+          <div key={item.label} className={styles.breakdownRow}>
+                        
+            <div
+              className={styles.breakdownDot}
+              style={{ background: item.color }}
+            />
+                        
+            <div className={styles.breakdownLabel}>{item.label}</div>
+                        
+            <div
+              className={styles.breakdownValue}
+              style={{ color: item.color }}
+            >
+                            {item.value}
+                          
+            </div>
+                        
+            <div className={styles.breakdownBarTrack}>
+                            
+              <div
+                className={styles.breakdownBar}
+                style={{
+                  width:
+                    promises.length > 0
+                      ? `${(item.value / promises.length) * 100}%`
+                      : '0%',
+                  background: item.color,
+                }}
+              />
+                          
+            </div>
+                      
+          </div>
+        ))}
+              
+      </div>
+            {/* Shareable URL */}
+            
+      <div className={styles.shareCard}>
+                
+        <div>
+                    
+          <div className={styles.shareTitle}>Your public trust profile</div>
+                    <div className={styles.shareUrl}>{SHAREABLE_URL}</div>
+                  
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.label}>Kept</span>
-          <span className={styles.value}>{data.breakdown.kept}</span>
-        </div>
-        <div className={styles.statCard}>
-          <span className={styles.label}>Broken</span>
-          <span className={styles.value}>{data.breakdown.broken}</span>
-        </div>
-      </section>
+                
+        <button className={styles.copyButton} onClick={handleCopyLink}>
+                    {copied ? 'Copied!' : 'Copy Link'}
+                  
+        </button>
+              
+      </div>
+          
     </div>
   );
 }
