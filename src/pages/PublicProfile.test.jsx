@@ -69,7 +69,7 @@ describe('PublicProfile', () => {
     getPromises.mockResolvedValue(mockPromises);
     getAssessments.mockResolvedValue(mockAssessments);
 
-    render(<PublicProfile />);
+    render(<PublicProfile promiserId="dev_user_001" />);
 
     await waitFor(() => {
       expect(screen.getByText('Pending algorithm')).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('PublicProfile', () => {
     getPromises.mockResolvedValue(mockPromises);
     getAssessments.mockResolvedValue(mockAssessments);
 
-    render(<PublicProfile />);
+    render(<PublicProfile promiserId="dev_user_001" />);
 
     await waitFor(() => {
       expect(screen.getByText('Promise Breakdown')).toBeInTheDocument();
@@ -102,7 +102,7 @@ describe('PublicProfile', () => {
       writable: true,
     });
 
-    render(<PublicProfile />);
+    render(<PublicProfile promiserId="dev_user_001" />);
 
     await waitFor(() => {
       expect(screen.getAllByText('Copy Link')[0]).toBeInTheDocument();
@@ -119,7 +119,7 @@ describe('PublicProfile', () => {
     getPromises.mockResolvedValue([]);
     getAssessments.mockResolvedValue([]);
 
-    render(<PublicProfile />);
+    render(<PublicProfile promiserId="dev_user_001" />);
 
     await waitFor(() => {
       expect(screen.getByText('Jordan Lee')).toBeInTheDocument();
@@ -133,7 +133,7 @@ describe('PublicProfile', () => {
     getPromises.mockRejectedValue(new Error('Network error'));
     getAssessments.mockRejectedValue(new Error('Network error'));
 
-    render(<PublicProfile />);
+    render(<PublicProfile promiserId="dev_user_001" />);
 
     await waitFor(() => {
       expect(

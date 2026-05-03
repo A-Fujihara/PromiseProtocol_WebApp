@@ -2,11 +2,7 @@ import { useState, useEffect } from 'react';
 import { getPromises, getAssessments } from '../services/api';
 import styles from './PublicProfile.module.css';
 
-// Epic 4 stub: replace with real authenticated user ID when auth is implemented
-const CURRENT_USER = 'dev_user_001';
-const SHAREABLE_URL = `promiseprotocol.com/profile/${CURRENT_USER}`;
-
-export default function PublicProfile() {
+export default function PublicProfile({ promiserId }) {
   const [promises, setPromises] = useState([]);
   const [breakdown, setBreakdown] = useState({ active: 0, kept: 0, broken: 0 });
   const [keptRate, setKeptRate] = useState('--');
@@ -23,7 +19,7 @@ export default function PublicProfile() {
         ]); // Filter to current user's promises only
 
         const userPromises = allPromises.filter(
-          (p) => p.promiserId === CURRENT_USER
+          (p) => p.promiserId === promiserId
         );
         const userPromiseIds = userPromises.map((p) => p.id); // Filter assessments to only those against the current user's promises
 
@@ -67,7 +63,7 @@ export default function PublicProfile() {
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(SHAREABLE_URL);
+      await navigator.clipboard.writeText(`promiseprotocol.com/profile/${promiserId}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -196,7 +192,7 @@ export default function PublicProfile() {
         <div>
                     
           <div className={styles.shareTitle}>Your public trust profile</div>
-                    <div className={styles.shareUrl}>{SHAREABLE_URL}</div>
+                    <div className={styles.shareUrl}>promiseprotocol.com/profile/{promiserId}</div>
                   
         </div>
                 
