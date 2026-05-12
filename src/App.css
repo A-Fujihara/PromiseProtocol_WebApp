@@ -19,6 +19,6 @@ body {
 }
 
 body {
-  font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
-  background: #09090c;
+  font-family: var(--pp-font-family);
+  background: var(--pp-bg);
 }

@@ -1,8 +1,8 @@
 .container {
   padding: 40px 48px;
-  background: #09090c;
+  background: var(--pp-bg);
   min-height: 100vh;
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
 }
 
 .header {
@@ -13,8 +13,8 @@
 }
 
 .copyBtn {
-  background: #4fc3f7;
-  color: #09090c;
+  background: var(--pp-accent);
+  color: var(--pp-bg);
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
@@ -32,14 +32,14 @@
 
 .statCard {
   background: #111116;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--pp-border);
   border-radius: 14px;
   padding: 24px;
 }
 
 .label {
   font-size: 10px;
-  color: #444;
+  color: var(--pp-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   display: block;
@@ -52,7 +52,7 @@
 }
 
 .breakdownLabel {
-  color: #888;
+  color: var(--pp-text-secondary);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;

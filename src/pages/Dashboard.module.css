@@ -3,9 +3,9 @@
   flex: 1;
   overflow-y: auto;
   height: 100vh;
-  background: #09090c;
-  color: #e8e8ec;
-  font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+  background: var(--pp-bg);
+  color: var(--pp-text-primary);
+  font-family: var(--pp-font-family);
 }
 
 .centered {
@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #09090c;
+  background: var(--pp-bg);
 }
 
 .header {
@@ -26,14 +26,14 @@
 .heading {
   font-size: 26px;
   font-weight: 800;
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
   letter-spacing: -0.03em;
   margin: 0;
 }
 
 .subheading {
   font-size: 14px;
-  color: #888;
+  color: var(--pp-text-secondary);
   margin-top: 4px;
 }
 
@@ -42,8 +42,8 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: #4fc3f7;
-  color: #09090c;
+  background: var(--pp-accent);
+  color: var(--pp-bg);
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -61,14 +61,14 @@
 
 .statCard {
   background: #111116;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--pp-border);
   border-radius: 14px;
   padding: 22px 24px;
 }
 
 .statLabel {
   font-size: 10px;
-  color: #444;
+  color: var(--pp-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 14px;
@@ -83,23 +83,23 @@
 }
 
 .statValueDefault {
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
 }
 .statValueGreen {
-  color: #4caf82;
+  color: var(--pp-green);
 }
 .statValueRed {
-  color: #e05252;
+  color: var(--pp-red);
 }
 
 .statSub {
   font-size: 11px;
-  color: #888;
+  color: var(--pp-text-secondary);
 }
 
 .recentCard {
   background: #111116;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--pp-border);
   border-radius: 14px;
   overflow: hidden;
 }
@@ -109,18 +109,18 @@
   justify-content: space-between;
   align-items: center;
   padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--pp-border);
 }
 
 .recentTitle {
   font-size: 14px;
   font-weight: 700;
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
 }
 
 .viewAll {
   font-size: 12px;
-  color: #4fc3f7;
+  color: var(--pp-accent);
   cursor: pointer;
   background: none;
   border: none;
@@ -134,11 +134,11 @@
 }
 
 .mutedText {
-  color: #444;
+  color: var(--pp-text-muted);
   font-size: 13px;
 }
 
 .errorText {
-  color: #e05252;
+  color: var(--pp-red);
   font-size: 13px;
 }

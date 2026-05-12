@@ -2,9 +2,9 @@
   padding: 40px 48px;
   height: 100vh;
   width: 100%;
-  background: #09090c;
-  color: #e8e8ec;
-  font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+  background: var(--pp-bg);
+  color: var(--pp-text-primary);
+  font-family: var(--pp-font-family);
   overflow-y: auto;
 }
 
@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #09090c;
+  background: var(--pp-bg);
 }
 
 .backButton {
@@ -21,7 +21,7 @@
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #888;
+  color: var(--pp-text-secondary);
   cursor: pointer;
   background: none;
   border: none;
@@ -31,7 +31,7 @@
 }
 
 .backButton:hover {
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
 }
 
 .content {
@@ -41,7 +41,7 @@
 
 .promiseCard {
   background: #111116;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--pp-border);
   border-radius: 14px;
   overflow: hidden;
   margin-bottom: 20px;
@@ -71,20 +71,20 @@
 
 .domain {
   font-size: 11px;
-  color: #4fc3f7;
+  color: var(--pp-accent);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
 }
 
 .arrow {
-  color: #444;
+  color: var(--pp-text-muted);
   font-size: 12px;
 }
 
 .promisee {
   font-size: 12px;
-  color: #888;
+  color: var(--pp-text-secondary);
 }
 
 .badge {
@@ -99,7 +99,7 @@
 .objective {
   font-size: 20px;
   font-weight: 700;
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
   line-height: 1.4;
   margin-bottom: 22px;
 }
@@ -118,7 +118,7 @@
 
 .metaLabel {
   font-size: 10px;
-  color: #444;
+  color: var(--pp-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.09em;
   margin-bottom: 6px;
@@ -127,12 +127,12 @@
 .metaValue {
   font-size: 14px;
   font-weight: 600;
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
 }
 
 .assessmentsCard {
   background: #111116;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--pp-border);
   border-radius: 14px;
   overflow: hidden;
   margin-bottom: 20px;
@@ -140,10 +140,10 @@
 
 .assessmentsHeader {
   padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--pp-border);
   font-size: 14px;
   font-weight: 700;
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
 }
 
 .assessmentRow {
@@ -151,25 +151,25 @@
   justify-content: space-between;
   align-items: center;
   padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--pp-border);
 }
 
 .assessorName {
   font-size: 13px;
   font-weight: 600;
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
   margin-bottom: 4px;
 }
 
 .assessmentDate {
   font-size: 12px;
-  color: #888;
+  color: var(--pp-text-secondary);
 }
 
 .emptyAssessments {
   padding: 32px 24px;
   text-align: center;
-  color: #444;
+  color: var(--pp-text-muted);
   font-size: 13px;
 }
 
@@ -179,26 +179,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(79, 195, 247, 0.1);
-  border: 1px solid rgba(79, 195, 247, 0.25);
+  background: var(--pp-accent-dim);
+  border: 1px solid var(--pp-accent-border);
 }
 
 .ctaTitle {
   font-size: 14px;
   font-weight: 700;
-  color: #e8e8ec;
+  color: var(--pp-text-primary);
   margin-bottom: 4px;
 }
 
 .ctaSubtitle {
   font-size: 12px;
-  color: #888;
+  color: var(--pp-text-secondary);
 }
 
 .ctaButton {
   padding: 10px 20px;
-  background: #4fc3f7;
-  color: #09090c;
+  background: var(--pp-accent);
+  color: var(--pp-bg);
   border: none;
   border-radius: 8px;
   font-size: 13px;
@@ -208,16 +208,16 @@
 }
 
 .mutedText {
-  color: #444;
+  color: var(--pp-text-muted);
   font-size: 13px;
 }
 
 .errorText {
-  color: #e05252;
+  color: var(--pp-red);
   font-size: 13px;
 }
 
 .notFound {
   font-size: 14px;
-  color: #888;
+  color: var(--pp-text-secondary);
 }

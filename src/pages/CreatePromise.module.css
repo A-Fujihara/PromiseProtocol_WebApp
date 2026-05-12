@@ -12,7 +12,7 @@
   max-width: 680px;
   background: #151723;
   border: 1px solid #2a2f45;
-  border-radius: 16px;
+  border-radius: var(--pp-border-radius);
   padding: 28px;
 }
 
@@ -42,7 +42,7 @@
 .form select,
 .form textarea {
   width: 100%;
-  border-radius: 10px;
+  border-radius: var(--pp-border-radius);
   border: 1px solid #3a4260;
   padding: 10px 12px;
   background: #101321;
@@ -56,7 +56,7 @@
 .fieldset {
   margin-top: 8px;
   border: 1px solid #3a4260;
-  border-radius: 10px;
+  border-radius: var(--pp-border-radius);
   padding: 12px;
   display: flex;
   gap: 24px;
@@ -75,7 +75,7 @@
 .submitButton {
   margin-top: 12px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--pp-border-radius);
   padding: 12px 14px;
   background: #3f7cff;
   color: #fff;
