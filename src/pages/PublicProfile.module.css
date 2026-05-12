@@ -31,7 +31,7 @@
 }
 
 .statCard {
-  background: #111116;
+  background: var(--pp-surface);
   border: 1px solid var(--pp-border);
   border-radius: 14px;
   padding: 24px;

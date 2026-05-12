@@ -7,17 +7,17 @@ const STATUS = {
   pending: {
     label: 'Active',
     color: 'var(--pp-accent)',
-    bg: 'rgba(79,195,247,0.10)',
+    bg: 'var(--pp-accent-dim)',
   },
   KEPT: {
     label: 'Kept',
     color: 'var(--pp-green)',
-    bg: 'rgba(76,175,130,0.10)',
+    bg: 'var(--pp-green-dim)',
   },
   BROKEN: {
     label: 'Broken',
     color: 'var(--pp-red)',
-    bg: 'rgba(224,82,82,0.10)',
+    bg: 'var(--pp-red-dim)',
   },
 };
 
