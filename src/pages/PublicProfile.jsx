@@ -63,7 +63,9 @@ export default function PublicProfile({ promiserId }) {
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(`promiseprotocol.com/profile/${promiserId}`);
+      await navigator.clipboard.writeText(
+        `promiseprotocol.com/profile/${promiserId}`
+      );
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -145,9 +147,13 @@ export default function PublicProfile({ promiserId }) {
                 <div className={styles.breakdownHeader}>Promise Breakdown</div>
                 
         {[
-          { label: 'Active', value: breakdown.active, color: '#4FC3F7' },
-          { label: 'Kept', value: breakdown.kept, color: '#4CAF82' },
-          { label: 'Broken', value: breakdown.broken, color: '#E05252' },
+          {
+            label: 'Active',
+            value: breakdown.active,
+            color: 'var(--pp-accent)',
+          },
+          { label: 'Kept', value: breakdown.kept, color: 'var(--pp-green)' },
+          { label: 'Broken', value: breakdown.broken, color: 'var(--pp-red)' },
         ].map((item) => (
           <div key={item.label} className={styles.breakdownRow}>
                         
@@ -192,7 +198,10 @@ export default function PublicProfile({ promiserId }) {
         <div>
                     
           <div className={styles.shareTitle}>Your public trust profile</div>
-                    <div className={styles.shareUrl}>promiseprotocol.com/profile/{promiserId}</div>
+                    
+          <div className={styles.shareUrl}>
+            promiseprotocol.com/profile/{promiserId}
+          </div>
                   
         </div>
                 

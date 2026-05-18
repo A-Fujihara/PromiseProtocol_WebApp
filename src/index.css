@@ -19,9 +19,9 @@ body {
 }
 
 body {
-  font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
-  background: #09090c;
-  color: #e8e8ec;
+  font-family: var(--pp-font-family);
+  background: var(--pp-bg);
+  color: var(--pp-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

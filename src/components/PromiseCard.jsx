@@ -4,9 +4,21 @@ import styles from './PromiseCard.module.css';
 const DAYS_TO_MS = 86400000;
 
 export const STATUS = {
-  pending: { label: 'Active', color: '#4FC3F7', bg: 'rgba(79,195,247,0.10)' },
-  KEPT: { label: 'Kept', color: '#4CAF82', bg: 'rgba(76,175,130,0.10)' },
-  BROKEN: { label: 'Broken', color: '#E05252', bg: 'rgba(224,82,82,0.10)' },
+  pending: {
+    label: 'Active',
+    color: 'var(--pp-accent)',
+    bg: 'var(--pp-accent-dim)',
+  },
+  KEPT: {
+    label: 'Kept',
+    color: 'var(--pp-green)',
+    bg: 'var(--pp-green-dim)',
+  },
+  BROKEN: {
+    label: 'Broken',
+    color: 'var(--pp-red)',
+    bg: 'var(--pp-red-dim)',
+  },
 };
 
 export default function PromiseCard({
