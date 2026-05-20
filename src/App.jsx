@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import MyPromises from './pages/MyPromises';
 import CreatePromise from './pages/CreatePromise';
@@ -17,14 +18,25 @@ function NotFound() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/promises" element={<MyPromises />} />
-      <Route path="/promises/:id" element={<PromiseDetail />} />
-      <Route path="/create" element={<CreatePromise />} />
-      <Route path="/profile" element={<PublicProfile />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        background: 'var(--pp-bg)',
+      }}
+    >
+      <Sidebar />
+      <main style={{ flex: 1, overflow: 'auto' }}>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/promises" element={<MyPromises />} />
+          <Route path="/promises/:id" element={<PromiseDetail />} />
+          <Route path="/create" element={<CreatePromise />} />
+          <Route path="/profile" element={<PublicProfile />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 
