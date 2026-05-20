@@ -1,0 +1,47 @@
+on:
+  push:
+    branches: [ dev ]
+  workflow_dispatch:
+
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_ACCOUNT_ID: ACCOUNT_ID
+  AWS_REGION: us-east-1
+  S3_BUCKET: S3_BUCKET
+  DEPLOY_ROLE: DEPLOY_ROLE
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./src
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: npm
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build React app
+      run: npm run build
+
+    - name: Configure AWS credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::$AWS_ACCOUNT_ID:role/$DEPLOY_ROLE
+        aws-region: $AWS_REGION
+
+    - name: Deploy to S3
+      run: aws s3 sync build/ s3://$S3_BUCKET --delete
