@@ -1,33 +1,89 @@
 .container {
-  padding: 40px 48px;
+  flex: 1;
+  overflow-y: auto;
+  height: 100vh;
+  padding: 48px;
   background: var(--pp-bg);
-  min-height: 100vh;
   color: var(--pp-text-primary);
+  font-family: var(--pp-font-family);
 }
 
-.header {
+.centered {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  justify-content: center;
+  height: 100vh;
+  background: var(--pp-bg);
 }
 
-.copyBtn {
-  background: var(--pp-accent);
-  color: var(--pp-bg);
-  border: none;
+.mutedText {
+  color: var(--pp-text-muted);
+  font-size: 13px;
+}
+
+.errorText {
+  color: var(--pp-red);
+  font-size: 13px;
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--pp-surface);
+  border: 1px solid var(--pp-border);
+  border-radius: 14px;
+  padding: 32px 28px;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 900;
+  color: white;
+  background: linear-gradient(135deg, var(--pp-accent), var(--pp-accent-dark));
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileName {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--pp-text-primary);
+  margin: 0;
+}
+
+.profileRole {
+  font-size: 13px;
+  color: var(--pp-text-secondary);
+  margin: 4px 0 0 0;
+}
+
+.shareButton {
+  padding: 8px 16px;
   border-radius: 8px;
-  padding: 10px 20px;
-  font-weight: 800;
+  font-size: 12px;
   cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--pp-border);
+  color: var(--pp-text-secondary);
 }
 
-.statsGrid,
-.breakdownGrid {
+.statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 .statCard {
@@ -37,24 +93,123 @@
   padding: 24px;
 }
 
-.label {
+.statLabel {
   font-size: 10px;
   color: var(--pp-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  display: block;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
-.value {
+.statValue {
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--pp-accent);
+}
+
+.statValuePlaceholder {
   font-size: 36px;
   font-weight: 900;
+  color: var(--pp-text-muted);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.statValueGreen {
+  color: var(--pp-green);
+}
+
+.statSub {
+  font-size: 12px;
+  color: var(--pp-text-secondary);
+  margin-top: 8px;
+}
+
+.breakdownCard {
+  background: var(--pp-surface);
+  border: 1px solid var(--pp-border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.breakdownHeader {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--pp-border);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--pp-text-primary);
+}
+
+.breakdownRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--pp-border);
+}
+
+.breakdownDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .breakdownLabel {
-  color: var(--pp-text-secondary);
+  flex: 1;
+  font-size: 13px;
+  color: var(--pp-text-primary);
+}
+
+.breakdownValue {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.breakdownBarTrack {
+  width: 100px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.breakdownBar {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.shareCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--pp-surface);
+  border: 1px solid var(--pp-border);
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+
+.shareTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pp-text-primary);
+  margin-bottom: 4px;
+}
+
+.shareUrl {
+  font-size: 12px;
+  color: var(--pp-text-muted);
+}
+
+.copyButton {
+  padding: 8px 16px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 16px;
+  cursor: pointer;
+  background: var(--pp-accent-dim);
+  border: 1px solid var(--pp-accent-border);
+  color: var(--pp-accent);
 }

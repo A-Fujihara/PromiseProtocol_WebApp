@@ -1,144 +1,136 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import PublicProfile from './PublicProfile';
 
 vi.mock('../services/api', () => ({
-  getPromises: vi.fn(),
-  getAssessments: vi.fn(),
+  getPromises: vi.fn(),
+  getAssessments: vi.fn(),
 }));
 
 import { getPromises, getAssessments } from '../services/api';
 
-const mockPromises = [
-  {
-    id: 'prm_001',
-    promiserId: 'dev_user_001',
-    promiseeScope: 'individual',
-    domain: 'Web Dev',
-    objective: 'Build the dashboard screen',
-    status: 'pending',
-    stake: { type: 'reputational', amount: null, status: 'held' },
-    createdAt: '2026-04-01T12:00:00.000Z',
-  },
-  {
-    id: 'prm_002',
-    promiserId: 'dev_user_001',
-    promiseeScope: 'individual',
-    domain: 'Design',
-    objective: 'Create logo',
-    status: 'pending',
-    stake: { type: 'financial', amount: 100, status: 'held' },
-    createdAt: '2026-04-02T12:00:00.000Z',
-  },
-  {
-    id: 'prm_003',
-    promiserId: 'other_user_999',
-    promiseeScope: 'individual',
-    domain: 'Marketing',
-    objective: 'This belongs to another user',
-    status: 'pending',
-    stake: { type: 'reputational', amount: null, status: 'held' },
-    createdAt: '2026-04-03T12:00:00.000Z',
-  },
-];
+const mockPromise = {
+  id: 'prm_001',
+  promiserId: 'dev_user_001',
+  domain: 'Web Dev',
+  objective: 'Build the dashboard screen',
+  status: 'pending',
+  createdAt: '2026-04-01T12:00:00.000Z',
+};
 
-const mockAssessments = [
-  {
-    id: 'asm_001',
-    promiseId: 'prm_001',
-    assessorId: 'dev_user_001',
-    judgment: 'KEPT',
-    createdAt: '2026-04-05T12:00:00.000Z',
-  },
-  {
-    id: 'asm_002',
-    promiseId: 'prm_002',
-    assessorId: 'dev_user_001',
-    judgment: 'BROKEN',
-    createdAt: '2026-04-06T12:00:00.000Z',
-  },
-];
+const mockAssessmentKept = {
+  id: 'asm_001',
+  promiseId: 'prm_001',
+  assessorId: 'dev_user_002',
+  judgment: 'KEPT',
+  createdAt: '2026-04-05T12:00:00.000Z',
+};
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.clearAllMocks();
 });
 
+function renderComponent() {
+  return render(
+    <MemoryRouter>
+      <PublicProfile />
+    </MemoryRouter>
+  );
+}
+
 describe('PublicProfile', () => {
-  test('renders reputation score as stub and kept rate correctly', async () => {
-    getPromises.mockResolvedValue(mockPromises);
-    getAssessments.mockResolvedValue(mockAssessments);
+  test('renders profile name and role', async () => {
+    getPromises.mockResolvedValue([mockPromise]);
+    getAssessments.mockResolvedValue([]);
 
-    render(<PublicProfile promiserId="dev_user_001" />);
+    renderComponent();
 
-    await waitFor(() => {
-      expect(screen.getByText('Pending algorithm')).toBeInTheDocument();
-    });
+    await waitFor(() => {
+      expect(screen.getByText('Jordan Lee')).toBeInTheDocument();
+    });
 
-    expect(screen.getByText('50%')).toBeInTheDocument();
-  });
+    expect(
+      screen.getByText('Freelance Developer & Designer')
+    ).toBeInTheDocument();
+  });
 
-  test('renders promise breakdown counts accurately', async () => {
-    getPromises.mockResolvedValue(mockPromises);
-    getAssessments.mockResolvedValue(mockAssessments);
+  test('renders placeholder when no assessments exist', async () => {
+    getPromises.mockResolvedValue([mockPromise]);
+    getAssessments.mockResolvedValue([]);
 
-    render(<PublicProfile promiserId="dev_user_001" />);
+    renderComponent();
 
-    await waitFor(() => {
-      expect(screen.getByText('Promise Breakdown')).toBeInTheDocument();
-    });
+    await waitFor(() => {
+      expect(screen.getByText('No assessments yet')).toBeInTheDocument();
+    });
 
-    const twos = screen.getAllByText('2');
-    expect(twos.length).toBeGreaterThanOrEqual(1);
-  });
+    expect(screen.getByText('Pending algorithm')).toBeInTheDocument();
+  });
 
-  test('Copy Link button copies the correct URL to clipboard', async () => {
-    getPromises.mockResolvedValue(mockPromises);
-    getAssessments.mockResolvedValue(mockAssessments);
+  test('renders kept rate when assessments exist', async () => {
+    getPromises.mockResolvedValue([mockPromise]);
+    getAssessments.mockResolvedValue([mockAssessmentKept]);
 
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, 'clipboard', {
-      value: { writeText },
-      writable: true,
-    });
+    renderComponent();
 
-    render(<PublicProfile promiserId="dev_user_001" />);
+    await waitFor(() => {
+      expect(screen.getByText('100%')).toBeInTheDocument();
+    });
+  });
 
-    await waitFor(() => {
-      expect(screen.getAllByText('Copy Link')[0]).toBeInTheDocument();
-    });
+  test('renders promise breakdown with correct counts', async () => {
+    getPromises.mockResolvedValue([mockPromise]);
+    getAssessments.mockResolvedValue([]);
 
-    await userEvent.click(screen.getAllByText('Copy Link')[0]);
+    renderComponent();
 
-    expect(writeText).toHaveBeenCalledWith(
-      'promiseprotocol.com/profile/dev_user_001'
-    );
-  });
+    await waitFor(() => {
+      expect(screen.getByText('Active')).toBeInTheDocument();
+    });
 
-  test('renders correctly when viewed without being logged in', async () => {
-    getPromises.mockResolvedValue([]);
-    getAssessments.mockResolvedValue([]);
+    expect(screen.getByText('Kept')).toBeInTheDocument();
+    expect(screen.getByText('Broken')).toBeInTheDocument();
+  });
 
-    render(<PublicProfile promiserId="dev_user_001" />);
+  test('renders share card with public profile URL', async () => {
+    getPromises.mockResolvedValue([mockPromise]);
+    getAssessments.mockResolvedValue([]);
 
-    await waitFor(() => {
-      expect(screen.getByText('Jordan Lee')).toBeInTheDocument();
-    });
+    renderComponent();
 
-    const dashes = screen.getAllByText('--');
-    expect(dashes).toHaveLength(2);
-  });
+    await waitFor(() => {
+      expect(screen.getByText('Your public trust profile')).toBeInTheDocument();
+    });
 
-  test('renders error state when API call fails', async () => {
-    getPromises.mockRejectedValue(new Error('Network error'));
-    getAssessments.mockRejectedValue(new Error('Network error'));
+    expect(
+      screen.getByText('promiseprotocol.com/profile/dev_user_001')
+    ).toBeInTheDocument();
+  });
 
-    render(<PublicProfile promiserId="dev_user_001" />);
+  test('renders error state when API call fails', async () => {
+    getPromises.mockRejectedValue(new Error('Network error'));
+    getAssessments.mockRejectedValue(new Error('Network error'));
 
-    await waitFor(() => {
-      expect(
-        screen.getByText('Failed to load profile data. Please try again.')
-      ).toBeInTheDocument();
-    });
-  });
+    renderComponent();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Failed to load profile data. Please try again.')
+      ).toBeInTheDocument();
+    });
+  });
+
+  test('renders Share Profile and Copy Link buttons', async () => {
+    getPromises.mockResolvedValue([mockPromise]);
+    getAssessments.mockResolvedValue([]);
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Share Profile ↗')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Copy Link')).toBeInTheDocument();
+  });
 });

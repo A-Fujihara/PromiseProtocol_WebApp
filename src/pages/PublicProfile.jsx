@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { getPromises, getAssessments } from '../services/api';
 import styles from './PublicProfile.module.css';
 
-export default function PublicProfile({ promiserId }) {
+const mockPromiserId = 'dev_user_001';
+
+export default function PublicProfile() {
   const [promises, setPromises] = useState([]);
   const [breakdown, setBreakdown] = useState({ active: 0, kept: 0, broken: 0 });
   const [keptRate, setKeptRate] = useState('--');
@@ -16,18 +18,16 @@ export default function PublicProfile({ promiserId }) {
         const [allPromises, allAssessments] = await Promise.all([
           getPromises(),
           getAssessments(),
-        ]); // Filter to current user's promises only
+        ]);
 
         const userPromises = allPromises.filter(
-          (p) => p.promiserId === promiserId
+          (p) => p.promiserId === mockPromiserId
         );
-        const userPromiseIds = userPromises.map((p) => p.id); // Filter assessments to only those against the current user's promises
+        const userPromiseIds = userPromises.map((p) => p.id);
 
         const userAssessments = allAssessments.filter((a) =>
           userPromiseIds.includes(a.promiseId)
-        ); // Derive breakdown counts
-        // Active: promises still pending
-        // Kept/Broken: derived from assessment judgments, not promise.status
+        );
 
         const active = userPromises.filter(
           (p) => p.status === 'pending'
@@ -37,7 +37,7 @@ export default function PublicProfile({ promiserId }) {
         ).length;
         const brokenCount = userAssessments.filter(
           (a) => a.judgment === 'BROKEN'
-        ).length; // Calculate kept rate percentage
+        ).length;
 
         const totalAssessments = userAssessments.length;
         const keptAssessments = userAssessments.filter(
@@ -64,7 +64,7 @@ export default function PublicProfile({ promiserId }) {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(
-        `promiseprotocol.com/profile/${promiserId}`
+        `promiseprotocol.com/profile/${mockPromiserId}`
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -76,8 +76,7 @@ export default function PublicProfile({ promiserId }) {
   if (loading) {
     return (
       <div className={styles.centered}>
-                <p className={styles.mutedText}>Loading...</p>
-              
+        <p className={styles.mutedText}>Loading...</p>
       </div>
     );
   }
@@ -85,67 +84,54 @@ export default function PublicProfile({ promiserId }) {
   if (error) {
     return (
       <div className={styles.centered}>
-                <p className={styles.errorText}>{error}</p>
-              
+        <p className={styles.errorText}>{error}</p>
       </div>
     );
   }
 
   return (
     <div className={styles.container}>
-            {/* Profile Header */}
-            
+      {/* Profile Header */}
       <div className={styles.profileCard}>
-                <div className={styles.avatar}>J</div>
-                
+        <div className={styles.avatar}>J</div>
         <div className={styles.profileInfo}>
-                    <h1 className={styles.profileName}>Jordan Lee</h1>
-                    
+          <h1 className={styles.profileName}>Jordan Lee</h1>
           <p className={styles.profileRole}>Freelance Developer & Designer</p>
-                  
         </div>
-                
         <button className={styles.shareButton} onClick={handleCopyLink}>
-                    {copied ? 'Copied!' : 'Share Profile :arrow_upper_right:'}
-                  
+          {copied ? 'Copied!' : 'Share Profile ↗'}
         </button>
-              
       </div>
-            {/* Reputation Score & Kept Rate */}
-            
+
+      {/* Reputation Score & Kept Rate */}
       <div className={styles.statsGrid}>
-                
         <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Reputation Score</div>
-                    <div className={styles.statValue}>--</div>
-                    <div className={styles.statSub}>Pending algorithm</div>
-                  
+          <div className={styles.statLabel}>Reputation Score</div>
+          <div className={styles.statValuePlaceholder}>--</div>
+          <div className={styles.statSub}>Pending algorithm</div>
         </div>
-                
         <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Promise Kept Rate</div>
-                    
-          <div className={`${styles.statValue} ${styles.statValueGreen}`}>
-                        {keptRate}
-                      
+          <div className={styles.statLabel}>Promise Kept Rate</div>
+          <div
+            className={
+              keptRate === '--'
+                ? styles.statValuePlaceholder
+                : `${styles.statValue} ${styles.statValueGreen}`
+            }
+          >
+            {keptRate}
           </div>
-                    
           <div className={styles.statSub}>
-                        
             {keptRate === '--'
               ? 'No assessments yet'
               : `${breakdown.kept} kept of ${promises.length} total`}
-                      
           </div>
-                  
         </div>
-              
       </div>
-            {/* Promise Breakdown */}
-            
+
+      {/* Promise Breakdown */}
       <div className={styles.breakdownCard}>
-                <div className={styles.breakdownHeader}>Promise Breakdown</div>
-                
+        <div className={styles.breakdownHeader}>Promise Breakdown</div>
         {[
           {
             label: 'Active',
@@ -156,24 +142,18 @@ export default function PublicProfile({ promiserId }) {
           { label: 'Broken', value: breakdown.broken, color: 'var(--pp-red)' },
         ].map((item) => (
           <div key={item.label} className={styles.breakdownRow}>
-                        
             <div
               className={styles.breakdownDot}
               style={{ background: item.color }}
             />
-                        
             <div className={styles.breakdownLabel}>{item.label}</div>
-                        
             <div
               className={styles.breakdownValue}
               style={{ color: item.color }}
             >
-                            {item.value}
-                          
+              {item.value}
             </div>
-                        
             <div className={styles.breakdownBarTrack}>
-                            
               <div
                 className={styles.breakdownBar}
                 style={{
@@ -184,34 +164,23 @@ export default function PublicProfile({ promiserId }) {
                   background: item.color,
                 }}
               />
-                          
             </div>
-                      
           </div>
         ))}
-              
       </div>
-            {/* Shareable URL */}
-            
+
+      {/* Shareable URL */}
       <div className={styles.shareCard}>
-                
         <div>
-                    
           <div className={styles.shareTitle}>Your public trust profile</div>
-                    
           <div className={styles.shareUrl}>
-            promiseprotocol.com/profile/{promiserId}
+            promiseprotocol.com/profile/{mockPromiserId}
           </div>
-                  
         </div>
-                
         <button className={styles.copyButton} onClick={handleCopyLink}>
-                    {copied ? 'Copied!' : 'Copy Link'}
-                  
+          {copied ? 'Copied!' : 'Copy Link'}
         </button>
-              
       </div>
-          
     </div>
   );
 }
