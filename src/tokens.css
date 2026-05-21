@@ -20,4 +20,6 @@
   --pp-font-size: 16px;
   --pp-font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
   --pp-border-radius: 0.625rem;
+  --pp-amber-dim: rgba(240, 160, 75, 0.3);
+  --pp-sidebar-bg: rgba(255, 255, 255, 0.015);
 }

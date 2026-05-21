@@ -6,7 +6,7 @@
   flex-direction: column;
   padding: 32px 0;
   border-right: 1px solid var(--pp-border);
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--pp-sidebar-bg);
   position: sticky;
   top: 0;
 }
@@ -70,7 +70,7 @@
 
 .navLinkNew {
   color: var(--pp-amber);
-  border: 1px dashed rgba(240, 160, 75, 0.3);
+  border: 1px dashed var(--pp-amber-dim);
 }
 
 .navLinkNew:hover {
