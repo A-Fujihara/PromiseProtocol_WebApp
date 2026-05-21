@@ -8,6 +8,7 @@
   --pp-accent: #4fc3f7;
   --pp-accent-dim: rgba(79, 195, 247, 0.1);
   --pp-accent-border: rgba(79, 195, 247, 0.25);
+  --pp-accent-dark: #0288d1;
   --pp-green: #4caf82;
   --pp-green-dim: rgba(76, 175, 130, 0.1);
   --pp-red: #e05252;
@@ -19,4 +20,6 @@
   --pp-font-size: 16px;
   --pp-font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
   --pp-border-radius: 0.625rem;
+  --pp-amber-dim: rgba(240, 160, 75, 0.3);
+  --pp-sidebar-bg: rgba(255, 255, 255, 0.015);
 }

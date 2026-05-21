@@ -1,0 +1,119 @@
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 0;
+  border-right: 1px solid var(--pp-border);
+  background: var(--pp-sidebar-bg);
+  position: sticky;
+  top: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 24px 32px 24px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--pp-border);
+}
+
+.logoIcon {
+  font-size: 26px;
+  line-height: 1;
+  color: var(--pp-accent);
+}
+
+.logoText {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pp-text-primary);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 12px;
+  flex: 1;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--pp-text-secondary);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.navLink:hover {
+  color: var(--pp-text-primary);
+  background: var(--pp-surface-hover);
+}
+
+.navLinkActive {
+  font-weight: 600;
+  color: var(--pp-accent);
+  background: var(--pp-accent-dim);
+}
+
+.navLinkNew {
+  color: var(--pp-amber);
+  border: 1px dashed var(--pp-amber-dim);
+}
+
+.navLinkNew:hover {
+  color: var(--pp-amber);
+}
+
+.navIcon {
+  width: 20px;
+  text-align: center;
+  line-height: 1;
+  font-size: 16px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 0 16px;
+  border-top: 1px solid var(--pp-border);
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, var(--pp-accent), var(--pp-accent-dark));
+}
+
+.userName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pp-text-primary);
+}
+
+.userRole {
+  font-size: 11px;
+  margin-top: 2px;
+  color: var(--pp-text-muted);
+}
