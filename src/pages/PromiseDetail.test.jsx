@@ -14,6 +14,7 @@ const mockPendingPromise = {
   id: 'prm_001',
   promiserId: 'dev_user_001',
   promiseeScope: 'individual',
+  promiseeName: 'Jordan',
   domain: 'Web Dev',
   objective: 'Build the dashboard screen',
   timeline: 30,
@@ -156,5 +157,35 @@ describe('PromiseDetail', () => {
     await waitFor(() => {
       expect(screen.getByText('← Back to Promises')).toBeInTheDocument();
     });
+  });
+
+  test('renders promiseeName when present', async () => {
+    getPromises.mockResolvedValue([mockPendingPromise]);
+    getAssessments.mockResolvedValue([]);
+
+    renderWithRouter('prm_001');
+
+    await waitFor(() => {
+      expect(screen.getByText('Jordan')).toBeInTheDocument();
+    });
+  });
+
+  test('renders -- fallback when promiseeName is absent', async () => {
+    const promiseWithoutName = {
+      ...mockPendingPromise,
+      promiseeName: undefined,
+    };
+    getPromises.mockResolvedValue([promiseWithoutName]);
+    getAssessments.mockResolvedValue([]);
+
+    renderWithRouter('prm_001');
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Build the dashboard screen')
+      ).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByText('--').length).toBeGreaterThan(0);
   });
 });

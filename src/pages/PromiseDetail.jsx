@@ -142,6 +142,12 @@ export default function PromiseDetail() {
                 <div className={styles.metaLabel}>Deposit</div>
                 <div className={styles.metaValue}>{stakeDisplay}</div>
               </div>
+              <div className={styles.metaItem}>
+                <div className={styles.metaLabel}>Promised To</div>
+                <div className={styles.metaValue}>
+                  {promise.promiseeName || '--'}
+                </div>
+              </div>
             </div>
           </div>
         </div>
