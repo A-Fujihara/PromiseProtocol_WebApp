@@ -1,13 +1,22 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import MyPromises from './MyPromises';
+import { getPromises } from '../services/api';
 
 vi.mock('../services/api', () => ({
   getPromises: vi.fn(),
 }));
 
-import { getPromises } from '../services/api';
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
 const mockPromises = [
   {
@@ -53,10 +62,16 @@ describe('MyPromises', () => {
     vi.clearAllMocks();
   });
 
+  const renderWithRouter = () => render(
+    <MemoryRouter>
+      <MyPromises />
+    </MemoryRouter>
+  );
+
   test('renders all promises correctly with mocked API data', async () => {
     getPromises.mockResolvedValue(mockPromises);
 
-    render(<MyPromises />);
+    renderWithRouter();
 
     await waitFor(() => {
       expect(screen.getByText('Pay rent')).toBeInTheDocument();
@@ -71,7 +86,7 @@ describe('MyPromises', () => {
     const user = userEvent.setup();
     getPromises.mockResolvedValue(mockPromises);
 
-    render(<MyPromises />);
+    renderWithRouter();
 
     await waitFor(() => {
       expect(screen.getByText('Pay rent')).toBeInTheDocument();
@@ -93,14 +108,12 @@ describe('MyPromises', () => {
     expect(screen.queryByText('Ship feature')).not.toBeInTheDocument();
   });
 
-  test('renders empty filter state when no promises match the active filter', async () => {
+  test('renders filter empty state when no promises match the active filter', async () => {
     const user = userEvent.setup();
-    const noKeptPromises = mockPromises.filter(
-      (promise) => promise.status !== 'KEPT'
-    );
+    const noKeptPromises = mockPromises.filter((p) => p.status !== 'KEPT');
     getPromises.mockResolvedValue(noKeptPromises);
 
-    render(<MyPromises />);
+    renderWithRouter();
 
     await waitFor(() => {
       expect(screen.getByText('Pay rent')).toBeInTheDocument();
@@ -108,13 +121,25 @@ describe('MyPromises', () => {
 
     await user.click(screen.getByRole('button', { name: 'Kept' }));
 
-    expect(
-      screen.getByText(
-        'No commitments match the selected filter. Try another status.'
-      )
-    ).toBeInTheDocument();
-    expect(screen.queryByText('Pay rent')).not.toBeInTheDocument();
-    expect(screen.queryByText('Fix bug')).not.toBeInTheDocument();
+    expect(screen.getByText('No commitments match this filter.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Create your first commitment' })).not.toBeInTheDocument();
+  });
+
+  test('renders true empty state and navigates to /create on click', async () => {
+    const user = userEvent.setup();
+    getPromises.mockResolvedValue([]);
+
+    renderWithRouter();
+
+    await waitFor(() => {
+      expect(screen.getByText("You haven't made any commitments yet.")).toBeInTheDocument();
+    });
+
+    const createBtn = screen.getByRole('button', { name: 'Create your first commitment' });
+    expect(createBtn).toBeInTheDocument();
+
+    await user.click(createBtn);
+    expect(mockNavigate).toHaveBeenCalledWith('/create');
   });
 
   test('clicking a promise card triggers detail navigation behavior', async () => {
@@ -122,7 +147,7 @@ describe('MyPromises', () => {
     getPromises.mockResolvedValue(mockPromises);
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-    render(<MyPromises />);
+    renderWithRouter();
 
     await waitFor(() => {
       expect(screen.getByText('Pay rent')).toBeInTheDocument();
@@ -130,9 +155,7 @@ describe('MyPromises', () => {
 
     await user.click(screen.getByText('Pay rent'));
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Navigate to Promise Detail — wired in Epic 3'
-    );
+    expect(consoleSpy).toHaveBeenCalledWith('Navigate to Promise Detail — wired in Epic 3');
 
     consoleSpy.mockRestore();
   });
