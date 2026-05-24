@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import PublicProfile from './PublicProfile';
 
@@ -13,9 +14,11 @@ import { getPromises, getAssessments } from '../services/api';
 const mockPromise = {
   id: 'prm_001',
   promiserId: 'dev_user_001',
+  promiseeScope: 'individual',
   domain: 'Web Dev',
   objective: 'Build the dashboard screen',
   status: 'pending',
+  stake: { type: 'reputational', amount: null, status: 'held' },
   createdAt: '2026-04-01T12:00:00.000Z',
 };
 
@@ -132,5 +135,29 @@ describe('PublicProfile', () => {
     });
 
     expect(screen.getByText('Copy Link')).toBeInTheDocument();
+  });
+
+  test('clicking Copy Link calls clipboard with correct URL', async () => {
+    const user = userEvent.setup();
+    const writeTextMock = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: writeTextMock },
+      writable: true,
+    });
+
+    getPromises.mockResolvedValue([mockPromise]);
+    getAssessments.mockResolvedValue([]);
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Copy Link')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText('Copy Link'));
+
+    expect(writeTextMock).toHaveBeenCalledWith(
+      'promiseprotocol.com/profile/dev_user_001'
+    );
   });
 });
