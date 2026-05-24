@@ -39,13 +39,21 @@ export default function CreatePromise() {
   const validate = () => {
     const nextErrors = {};
 
-    if (!form.objective.trim()) nextErrors.objective = 'Commitment objective is required.';
-    if (!form.promiseeName.trim()) nextErrors.promiseeName = 'Commitment recipient is required.';
-    if (!form.promiseeScope) nextErrors.promiseeScope = 'Commitment scope is required.';
+    if (!form.objective.trim())
+      nextErrors.objective = 'Commitment objective is required.';
+    if (!form.promiseeName.trim())
+      nextErrors.promiseeName = 'Commitment recipient is required.';
+    if (!form.promiseeScope)
+      nextErrors.promiseeScope = 'Commitment scope is required.';
     if (!form.domain.trim()) nextErrors.domain = 'Domain is required.';
 
     const daysNumber = Number(form.days);
-    if (!form.days || Number.isNaN(daysNumber) || !Number.isInteger(daysNumber) || daysNumber <= 0) {
+    if (
+      !form.days ||
+      Number.isNaN(daysNumber) ||
+      !Number.isInteger(daysNumber) ||
+      daysNumber <= 0
+    ) {
       nextErrors.days = 'Timeline must be a positive whole number of days.';
     }
 
@@ -55,8 +63,13 @@ export default function CreatePromise() {
 
     if (form.stakeType === 'financial') {
       const amountNumber = Number(form.stakeAmount);
-      if (!form.stakeAmount || Number.isNaN(amountNumber) || amountNumber <= 0) {
-        nextErrors.stakeAmount = 'Financial deposit amount must be a positive number.';
+      if (
+        !form.stakeAmount ||
+        Number.isNaN(amountNumber) ||
+        amountNumber <= 0
+      ) {
+        nextErrors.stakeAmount =
+          'Financial deposit amount must be a positive number.';
       }
     }
 
@@ -64,11 +77,13 @@ export default function CreatePromise() {
   };
 
   const buildPayload = () => {
-    // PP-008 requires collecting promiseeName in the UI, but the current
-    // backend contract for POST /api/promises does not accept that field yet.
+    // PP-031: promiseeName is included in the payload as a frontend stub.
+    // The backend does not currently store this field but will silently ignore it.
+    // Full backend support is deferred to Sprint 4.
     const payload = {
       promiserId: CURRENT_USER,
       promiseeScope: form.promiseeScope,
+      promiseeName: form.promiseeName.trim(),
       domain: form.domain.trim(),
       objective: form.objective.trim(),
       days: Number(form.days),
@@ -114,7 +129,9 @@ export default function CreatePromise() {
     <div className={styles.page}>
       <main className={styles.card}>
         <h1 className={styles.heading}>Create Commitment</h1>
-        <p className={styles.subheading}>Record your commitment details below.</p>
+        <p className={styles.subheading}>
+          Record your commitment details below.
+        </p>
 
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <label htmlFor="objective">Commitment objective</label>
@@ -125,7 +142,9 @@ export default function CreatePromise() {
             onChange={handleChange}
             aria-invalid={Boolean(errors.objective)}
           />
-          {errors.objective && <p className={styles.error}>{errors.objective}</p>}
+          {errors.objective && (
+            <p className={styles.error}>{errors.objective}</p>
+          )}
 
           <label htmlFor="promiseeName">Commitment recipient name</label>
           <input
@@ -135,7 +154,9 @@ export default function CreatePromise() {
             onChange={handleChange}
             aria-invalid={Boolean(errors.promiseeName)}
           />
-          {errors.promiseeName && <p className={styles.error}>{errors.promiseeName}</p>}
+          {errors.promiseeName && (
+            <p className={styles.error}>{errors.promiseeName}</p>
+          )}
 
           <label htmlFor="promiseeScope">Commitment scope</label>
           <select
@@ -153,7 +174,9 @@ export default function CreatePromise() {
             <option value="organization">Organization</option>
             <option value="public">Public</option>
           </select>
-          {errors.promiseeScope && <p className={styles.error}>{errors.promiseeScope}</p>}
+          {errors.promiseeScope && (
+            <p className={styles.error}>{errors.promiseeScope}</p>
+          )}
 
           <label htmlFor="domain">Domain</label>
           <input
@@ -186,7 +209,9 @@ export default function CreatePromise() {
             onChange={handleChange}
             aria-invalid={Boolean(errors.successCriteria)}
           />
-          {errors.successCriteria && <p className={styles.error}>{errors.successCriteria}</p>}
+          {errors.successCriteria && (
+            <p className={styles.error}>{errors.successCriteria}</p>
+          )}
 
           <fieldset className={styles.fieldset}>
             <legend>Deposit type</legend>
@@ -225,11 +250,17 @@ export default function CreatePromise() {
                 onChange={handleChange}
                 aria-invalid={Boolean(errors.stakeAmount)}
               />
-              {errors.stakeAmount && <p className={styles.error}>{errors.stakeAmount}</p>}
+              {errors.stakeAmount && (
+                <p className={styles.error}>{errors.stakeAmount}</p>
+              )}
             </>
           )}
 
-          <button className={styles.submitButton} type="submit" disabled={isSubmitting}>
+          <button
+            className={styles.submitButton}
+            type="submit"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? 'Submitting...' : 'Submit Commitment'}
           </button>
         </form>

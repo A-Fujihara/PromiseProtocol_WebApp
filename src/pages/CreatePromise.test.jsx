@@ -20,14 +20,22 @@ describe('CreatePromise', () => {
 
     await user.click(screen.getByRole('button', { name: 'Submit Commitment' }));
 
-    expect(screen.getByText('Commitment objective is required.')).toBeInTheDocument();
-    expect(screen.getByText('Commitment recipient is required.')).toBeInTheDocument();
-    expect(screen.getByText('Commitment scope is required.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Commitment objective is required.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Commitment recipient is required.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Commitment scope is required.')
+    ).toBeInTheDocument();
     expect(screen.getByText('Domain is required.')).toBeInTheDocument();
     expect(
       screen.getByText('Timeline must be a positive whole number of days.')
     ).toBeInTheDocument();
-    expect(screen.getByText('Success criteria is required.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Success criteria is required.')
+    ).toBeInTheDocument();
     expect(createPromise).not.toHaveBeenCalled();
   });
 
@@ -49,12 +57,24 @@ describe('CreatePromise', () => {
     createPromise.mockResolvedValue({ id: 'prm_999' });
     render(<CreatePromise />);
 
-    await user.type(screen.getByLabelText('Commitment objective'), 'Ship PP-008');
-    await user.type(screen.getByLabelText('Commitment recipient name'), 'Jordan');
-    await user.selectOptions(screen.getByLabelText('Commitment scope'), 'organization');
+    await user.type(
+      screen.getByLabelText('Commitment objective'),
+      'Ship PP-008'
+    );
+    await user.type(
+      screen.getByLabelText('Commitment recipient name'),
+      'Jordan'
+    );
+    await user.selectOptions(
+      screen.getByLabelText('Commitment scope'),
+      'organization'
+    );
     await user.type(screen.getByLabelText('Domain'), 'Engineering');
     await user.type(screen.getByLabelText('Timeline (days)'), '30');
-    await user.type(screen.getByLabelText('Success criteria'), 'Form is accepted by backend');
+    await user.type(
+      screen.getByLabelText('Success criteria'),
+      'Form is accepted by backend'
+    );
     await user.click(screen.getByLabelText('Financial'));
     await user.type(screen.getByLabelText('Deposit amount'), '250');
 
@@ -67,6 +87,7 @@ describe('CreatePromise', () => {
     expect(createPromise).toHaveBeenCalledWith({
       promiserId: 'dev_user_001',
       promiseeScope: 'organization',
+      promiseeName: 'Jordan',
       domain: 'Engineering',
       objective: 'Ship PP-008',
       days: 30,
@@ -83,12 +104,21 @@ describe('CreatePromise', () => {
     createPromise.mockResolvedValue({ id: 'prm_1001' });
     render(<CreatePromise />);
 
-    await user.type(screen.getByLabelText('Commitment objective'), 'Ship PP-008');
-    await user.type(screen.getByLabelText('Commitment recipient name'), 'Jordan');
+    await user.type(
+      screen.getByLabelText('Commitment objective'),
+      'Ship PP-008'
+    );
+    await user.type(
+      screen.getByLabelText('Commitment recipient name'),
+      'Jordan'
+    );
     await user.selectOptions(screen.getByLabelText('Commitment scope'), 'self');
     await user.type(screen.getByLabelText('Domain'), 'Engineering');
     await user.type(screen.getByLabelText('Timeline (days)'), '21');
-    await user.type(screen.getByLabelText('Success criteria'), 'All validations pass');
+    await user.type(
+      screen.getByLabelText('Success criteria'),
+      'All validations pass'
+    );
 
     await user.click(screen.getByRole('button', { name: 'Submit Commitment' }));
 
@@ -99,6 +129,7 @@ describe('CreatePromise', () => {
     expect(createPromise).toHaveBeenCalledWith({
       promiserId: 'dev_user_001',
       promiseeScope: 'self',
+      promiseeName: 'Jordan',
       domain: 'Engineering',
       objective: 'Ship PP-008',
       days: 21,
@@ -115,17 +146,31 @@ describe('CreatePromise', () => {
     createPromise.mockResolvedValue({ id: 'prm_1000' });
     render(<CreatePromise />);
 
-    await user.type(screen.getByLabelText('Commitment objective'), 'Submit successful form');
-    await user.type(screen.getByLabelText('Commitment recipient name'), 'Jordan');
-    await user.selectOptions(screen.getByLabelText('Commitment scope'), 'individual');
+    await user.type(
+      screen.getByLabelText('Commitment objective'),
+      'Submit successful form'
+    );
+    await user.type(
+      screen.getByLabelText('Commitment recipient name'),
+      'Jordan'
+    );
+    await user.selectOptions(
+      screen.getByLabelText('Commitment scope'),
+      'individual'
+    );
     await user.type(screen.getByLabelText('Domain'), 'Product');
     await user.type(screen.getByLabelText('Timeline (days)'), '14');
-    await user.type(screen.getByLabelText('Success criteria'), 'Backend returns 201');
+    await user.type(
+      screen.getByLabelText('Success criteria'),
+      'Backend returns 201'
+    );
 
     await user.click(screen.getByRole('button', { name: 'Submit Commitment' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Commitment created successfully.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Commitment created successfully.')
+      ).toBeInTheDocument();
     });
   });
 
@@ -134,12 +179,24 @@ describe('CreatePromise', () => {
     createPromise.mockRejectedValue(new Error('Network error'));
     render(<CreatePromise />);
 
-    await user.type(screen.getByLabelText('Commitment objective'), 'Submit failing form');
-    await user.type(screen.getByLabelText('Commitment recipient name'), 'Jordan');
-    await user.selectOptions(screen.getByLabelText('Commitment scope'), 'public');
+    await user.type(
+      screen.getByLabelText('Commitment objective'),
+      'Submit failing form'
+    );
+    await user.type(
+      screen.getByLabelText('Commitment recipient name'),
+      'Jordan'
+    );
+    await user.selectOptions(
+      screen.getByLabelText('Commitment scope'),
+      'public'
+    );
     await user.type(screen.getByLabelText('Domain'), 'Product');
     await user.type(screen.getByLabelText('Timeline (days)'), '14');
-    await user.type(screen.getByLabelText('Success criteria'), 'Backend returns 500');
+    await user.type(
+      screen.getByLabelText('Success criteria'),
+      'Backend returns 500'
+    );
 
     await user.click(screen.getByRole('button', { name: 'Submit Commitment' }));
 
