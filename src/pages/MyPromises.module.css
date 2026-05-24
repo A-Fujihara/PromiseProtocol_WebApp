@@ -115,6 +115,32 @@
   text-align: center;
 }
 
+.trueEmptyState {
+  border: 2px dashed var(--pp-border);
+  border-radius: var(--pp-border-radius);
+  background-color: var(--pp-surface-hover);
+  padding: 60px 0;
+  margin-top: 20px;
+}
+
+.createBtn {
+  margin-top: 16px;
+  padding: 10px 24px;
+  border-radius: var(--pp-border-radius);
+  border: none;
+  background-color: var(--pp-accent);
+  color: var(--pp-bg);
+  font-family: var(--pp-font-family);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.createBtn:hover {
+  background-color: var(--pp-accent-dark);
+}
+
 .emptyIcon {
   font-size: 32px;
   color: var(--pp-text-muted);

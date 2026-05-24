@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PromiseCard from '../components/PromiseCard';
 import { getPromises } from '../services/api';
 import styles from './MyPromises.module.css';
@@ -15,6 +16,7 @@ export default function MyPromises() {
   const [selectedFilter, setSelectedFilter] = useState(StatusSearchFilter.All);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
@@ -75,14 +77,21 @@ export default function MyPromises() {
       </div>
       {loading && <div className={styles.loadingState}>Loading...</div>}
       {error && <div className={styles.errorState}>{error}</div>}
+      
       {!loading && !error && promises.length === 0 ? (
-        <div className={styles.emptyState}>
-          <p className={styles.emptyTitle}>No commitments yet.</p>
+        <div className={`${styles.emptyState} ${styles.trueEmptyState}`}>
+          <p className={styles.emptyTitle}>You haven't made any commitments yet.</p>
+          <button 
+            className={styles.createBtn} 
+            onClick={() => navigate('/create')}
+          >
+            Create your first commitment
+          </button>
         </div>
       ) : !loading && !error && filteredPromises.length === 0 ? (
         <div className={styles.emptyState}>
           <p className={styles.emptyTitle}>
-            No commitments match the selected filter. Try another status.
+            No commitments match this filter.
           </p>
         </div>
       ) : (
