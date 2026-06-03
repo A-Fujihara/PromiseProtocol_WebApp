@@ -12,7 +12,10 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+aws
 *.local
+*.terraform*
+*.zip
 
 # Editor directories and files
 .vscode/*
