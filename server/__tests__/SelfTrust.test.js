@@ -56,6 +56,11 @@ describe('SelfTrust', () => {
       expect(result).toEqual({ score: 100, count: 1 });
     });
 
+    test('skips null or undefined elements in the outcomes array without throwing', () => {
+      const result = computeSelfTrust([{ outcome: 'kept' }, null, undefined]);
+      expect(result).toEqual({ score: 100, count: 1 });
+    });
+
     test('returns neutral score when every outcome in the list is unrecognized', () => {
       const result = computeSelfTrust([{ outcome: 'nonsense' }, { outcome: 'also-nonsense' }]);
       expect(result).toEqual({ score: 50, count: 0 });

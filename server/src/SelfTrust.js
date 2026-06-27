@@ -52,14 +52,19 @@ function isValidOutcome(outcome) {
  */
 function computeSelfTrust(outcomes) {
   if (!Array.isArray(outcomes) || outcomes.length === 0) {
-    // No history yet. Neutral starting point so a brand-new promise
-    // does not read as either trustworthy or untrustworthy.
     return { score: 50, count: 0 };
   }
 
   const weights = outcomes
+    .filter((o) => {
+      if (o == null) {
+        console.warn('SelfTrust.computeSelfTrust: skipping null/undefined outcome entry');
+        return false;
+      }
+      return true;
+    })
     .map((o) => OUTCOME_WEIGHTS[o.outcome])
-    .filter((w) => typeof w === "number"); // ignore unrecognized outcomes defensively
+    .filter((w) => typeof w === "number");
 
   if (weights.length === 0) {
     return { score: 50, count: 0 };
@@ -67,7 +72,6 @@ function computeSelfTrust(outcomes) {
 
   const average = weights.reduce((sum, w) => sum + w, 0) / weights.length;
   const score = Math.round(average * 100);
-
   return { score, count: weights.length };
 }
 
