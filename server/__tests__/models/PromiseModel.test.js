@@ -151,6 +151,143 @@ describe("Promise Data Model", () => {
     });
   });
 
+  describe("Self-Promise Support (kind & visibility)", () => {
+    it("should create a self-promise with no stake, defaulting to private visibility", () => {
+      const promise = new PromiseModel(
+        defaultPromiser,
+        defaultScope,
+        defaultDomain,
+        defaultObjective,
+        defaultTimeline,
+        defaultCriteria,
+        undefined, // stakeType omitted entirely
+        undefined, // stakeAmount omitted entirely
+        undefined, // currency omitted entirely
+        "self",
+      );
+      expect(promise.kind).toBe("self");
+      expect(promise.visibility).toBe("private");
+      expect(promise.stake).toBeNull();
+    });
+
+    it("should reject an explicit non-private visibility on a self-promise", () => {
+      const instantiatePromise = () => {
+        new PromiseModel(
+          defaultPromiser,
+          defaultScope,
+          defaultDomain,
+          defaultObjective,
+          defaultTimeline,
+          defaultCriteria,
+          undefined,
+          undefined,
+          undefined,
+          "self",
+          "group",
+        );
+      };
+      expect(instantiatePromise).toThrow(
+        "Invalid visibility: self-promises must be private",
+      );
+    });
+
+    it("should accept an explicit 'private' visibility on a self-promise", () => {
+      const promise = new PromiseModel(
+        defaultPromiser,
+        defaultScope,
+        defaultDomain,
+        defaultObjective,
+        defaultTimeline,
+        defaultCriteria,
+        undefined,
+        undefined,
+        undefined,
+        "self",
+        "private",
+      );
+      expect(promise.visibility).toBe("private");
+    });
+
+    it("should default kind to 'assessed' and visibility to 'public' when omitted (regression)", () => {
+      const promise = new PromiseModel(
+        defaultPromiser,
+        defaultScope,
+        defaultDomain,
+        defaultObjective,
+        defaultTimeline,
+        defaultCriteria,
+        "financial",
+        10,
+      );
+      expect(promise.kind).toBe("assessed");
+      expect(promise.visibility).toBe("public");
+      expect(promise.stake).toEqual({
+        type: "financial",
+        amount: 10,
+        currency: "USD",
+        status: "held",
+      });
+    });
+
+    it("should still validate a stake normally if a self-promise explicitly provides one", () => {
+      const promise = new PromiseModel(
+        defaultPromiser,
+        defaultScope,
+        defaultDomain,
+        defaultObjective,
+        defaultTimeline,
+        defaultCriteria,
+        "financial",
+        25,
+        "USD",
+        "self",
+      );
+      expect(promise.stake).toEqual({
+        type: "financial",
+        amount: 25,
+        currency: "USD",
+        status: "held",
+      });
+    });
+
+    it("should reject an invalid kind", () => {
+      const instantiatePromise = () => {
+        new PromiseModel(
+          defaultPromiser,
+          defaultScope,
+          defaultDomain,
+          defaultObjective,
+          defaultTimeline,
+          defaultCriteria,
+          undefined,
+          undefined,
+          undefined,
+          "collaborative",
+        );
+      };
+      expect(instantiatePromise).toThrow("Invalid kind");
+    });
+
+    it("should reject an invalid visibility", () => {
+      const instantiatePromise = () => {
+        new PromiseModel(
+          defaultPromiser,
+          defaultScope,
+          defaultDomain,
+          defaultObjective,
+          defaultTimeline,
+          defaultCriteria,
+          undefined,
+          undefined,
+          undefined,
+          "self",
+          "everyone",
+        );
+      };
+      expect(instantiatePromise).toThrow("Invalid visibility");
+    });
+  });
+
   describe("successCriteria Validation (PP-006)", () => {
     it("should accept a valid free-text successCriteria string", () => {
       const promise = new PromiseModel(
