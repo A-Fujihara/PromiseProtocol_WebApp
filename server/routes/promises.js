@@ -11,18 +11,20 @@ router.post("/", (req, res) => {
     days,
     stake,
     successCriteria,
+    kind,
+    visibility,
   } = req.body;
+
+  const isSelfPromise = kind === "self";
 
   if (
     !promiserId ||
     !domain ||
     !objective ||
     !days ||
-    !stake ||
-    !stake.type ||
-    stake.amount === undefined ||
     !successCriteria ||
-    successCriteria.trim() === ""
+    successCriteria.trim() === "" ||
+    (!isSelfPromise && (!stake || !stake.type || stake.amount === undefined))
   ) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -35,8 +37,11 @@ router.post("/", (req, res) => {
       objective,
       days,
       successCriteria,
-      stake.type,
-      stake.amount,
+      stake ? stake.type : undefined,
+      stake ? stake.amount : undefined,
+      stake ? stake.currency : undefined,
+      kind,
+      visibility,
     );
     return res.status(201).json(promise);
   } catch (error) {
