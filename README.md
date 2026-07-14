@@ -1,5 +1,7 @@
 # Promise Protocol
 
+Promise Protocol is a full-stack web app built around a simple idea: promises should be trackable, and trust should be measurable. Users create promises to themselves or others, ranging from low-stakes personal commitments to higher-stakes staked agreements, and the app tracks outcomes over time to build a trust score based on what someone actually follows through on, not just what they say they'll do.
+
 ## Local Setup
 
 ### Frontend (React)
@@ -110,6 +112,14 @@ npm run format
 ```
 
 Prettier is integrated with ESLint via `eslint-config-prettier` to avoid conflicts. It is recommended to enable "Format on Save" in your editor using the Prettier extension.
+
+---
+
+## Contributors
+
+- Angela Fujihara ([A-Fujihara](https://github.com/A-Fujihara))
+- Mark Buster ([MarkBuster](https://github.com/MarkBuster))
+- Bade Habib ([JungDefiant](https://github.com/JungDefiant))
 
 ---
 
