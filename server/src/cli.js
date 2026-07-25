@@ -21,6 +21,9 @@ const createPromise = (
   successCriteria,
   stakeType,
   stakeAmount,
+  currency,
+  kind,
+  visibility,
 ) => {
   const promise = new PromiseModel(
     promiserId,
@@ -31,6 +34,9 @@ const createPromise = (
     successCriteria,
     stakeType,
     stakeAmount,
+    currency,
+    kind,
+    visibility,
   );
   savePromise(promise);
   console.log(`✓ Promise created: ${promise.id}`);

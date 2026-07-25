@@ -33,5 +33,19 @@
     },
     "createdAt": "2026-04-10T16:13:14.241Z",
     "status": "pending"
+  },
+  {
+    "id": "prm_1783190009358_dmdg4lk3l",
+    "promiserId": "priya_001",
+    "promiseeScope": "self",
+    "domain": "wellness",
+    "objective": "Meditate for 10 minutes every morning",
+    "timeline": 14,
+    "successCriteria": "Logged a meditation session on at least 12 of 14 days",
+    "kind": "self",
+    "visibility": "private",
+    "stake": null,
+    "createdAt": "2026-07-04T00:00:00.000Z",
+    "status": "pending"
   }
 ]
