@@ -97,6 +97,41 @@ const getAssessments = (filters = {}) => {
   return assessments;
 };
 
+const saveOutcome = (outcome) => {
+  const file = path.join(DATA_DIR, "outcomes.json");
+  let outcomes = [];
+  if (fs.existsSync(file)) {
+    outcomes = JSON.parse(fs.readFileSync(file));
+  }
+  outcomes.push(outcome);
+  fs.writeFileSync(file, JSON.stringify(outcomes, null, 2));
+  return outcome;
+};
+
+const getOutcomes = (filters = {}) => {
+  const file = path.join(DATA_DIR, "outcomes.json");
+  if (!fs.existsSync(file)) return [];
+
+  let outcomes = JSON.parse(fs.readFileSync(file));
+
+  // Apply filters if provided
+  if (Object.keys(filters).length > 0) {
+    outcomes = outcomes.filter((outcome) => {
+      // Filter by promiseId
+      if (filters.promiseId && outcome.promiseId !== filters.promiseId) {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
+  // Oldest-first, regardless of write order on disk.
+  return outcomes.sort(
+    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+  );
+};
+
 /**
  * Calculates the aggregate truth of a promise based on all assessments.
  * @param {string} promiseId
@@ -117,6 +152,8 @@ const getAssessmentSummary = (promiseId) => {
 module.exports = {
   savePromise,
   getPromises,
+  saveOutcome,
+  getOutcomes,
   saveAssessment,
   getAssessments,
   getAssessmentSummary,
