@@ -1,5 +1,6 @@
 const PromiseModel = require("../models/PromiseModel");
 const Assessment = require("./Assessment");
+const Outcome = require("./Outcome");
 const {
   savePromise,
   getPromises,
@@ -7,6 +8,8 @@ const {
   getAssessments,
   updatePromise,
   getAssessmentSummary,
+  saveOutcome,
+  getOutcomes,
 } = require("./Storage");
 
 // TODO (Tech Debt): Refactor assessment, merit, and ledger logic.
@@ -41,6 +44,16 @@ const createPromise = (
   savePromise(promise);
   console.log(`✓ Promise created: ${promise.id}`);
   return promise;
+};
+
+/**
+ * Looks up a single promise by id.
+ * @param {string} promiseId
+ * @returns {object|null} The matching promise, or null if not found.
+ */
+const getPromiseById = (promiseId) => {
+  const promises = getPromises();
+  return promises.find((p) => p.id === promiseId) || null;
 };
 
 const listPromises = (filters = {}) => {
@@ -118,9 +131,33 @@ const listAssessments = (filters = {}) => {
   return assessments;
 };
 
+/**
+ * Logs a self-reported outcome check-in against a self-promise.
+ * The Outcome model itself validates that `outcome` is a recognized state
+ * (see SelfTrust.VALID_OUTCOMES); this function does not re-validate it.
+ * @param {string} promiseId
+ * @param {string} outcome - One of SelfTrust.VALID_OUTCOMES.
+ * @param {string} [note]
+ * @param {string} [attachmentRef]
+ * @returns {Outcome} The created outcome record.
+ */
+const logOutcome = (promiseId, outcome, note, attachmentRef) => {
+  const outcomeRecord = new Outcome(promiseId, outcome, note, attachmentRef);
+  saveOutcome(outcomeRecord);
+  console.log(`✓ Outcome logged: ${outcomeRecord.id}`);
+  return outcomeRecord;
+};
+
+const listOutcomes = (filters = {}) => {
+  return getOutcomes(filters);
+};
+
 module.exports = {
   createPromise,
   listPromises,
+  getPromiseById,
   submitAssessment,
   listAssessments,
+  logOutcome,
+  listOutcomes,
 };
