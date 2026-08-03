@@ -29,7 +29,12 @@ router.post("/", (req, res) => {
 
 router.get("/", (req, res) => {
   const { promiseId } = req.query;
-  const outcomes = listOutcomes(promiseId ? { promiseId } : {});
+
+  if (!promiseId) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const outcomes = listOutcomes({ promiseId });
   return res.status(200).json(outcomes || []);
 });
 

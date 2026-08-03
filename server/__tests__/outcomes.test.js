@@ -99,4 +99,10 @@ describe("GET /api/outcomes", () => {
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body[0]).toHaveProperty("promiseId", "prm_self_001");
   });
+
+  it("should return 400 if promiseId is missing", async () => {
+    const res = await request(app).get("/api/outcomes");
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
+  });
 });
