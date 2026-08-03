@@ -1,9 +1,10 @@
+const promisesRouter = require("./routes/promises");
+const assessmentsRouter = require("./routes/assessments");
+const outcomesRouter = require("./routes/outcomes");
+
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-
-const promisesRouter = require("./routes/promises");
-const assessmentsRouter = require("./routes/assessments");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use("/api/promises", promisesRouter);
 app.use("/api/assessments", assessmentsRouter);
+app.use("/api/outcomes", outcomesRouter);
 
 // Only start listening if we are NOT running tests
 if (process.env.NODE_ENV !== 'test') {
