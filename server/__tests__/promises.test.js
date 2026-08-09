@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require("../server");
+const Storage = require("../src/Storage");
 
 jest.mock("../src/Storage", () => ({
   savePromise: jest.fn((promise) => promise),
@@ -7,6 +8,8 @@ jest.mock("../src/Storage", () => ({
   saveAssessment: jest.fn((assessment) => assessment),
   getAssessments: jest.fn(() => []),
   getAssessmentSummary: jest.fn(() => ({ kept: 0, broken: 0, total: 0 })),
+  saveOutcome: jest.fn((outcome) => outcome),
+  getOutcomes: jest.fn(() => []),
 }));
 
 describe("POST /api/promises", () => {
@@ -145,5 +148,87 @@ describe("GET /api/promises", () => {
     const res = await request(app).get("/api/promises");
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+  });
+});
+
+describe("GET /api/promises/:id/self-trust (PP-A4)", () => {
+  afterEach(() => {
+    Storage.getPromises.mockReset().mockReturnValue([]);
+    Storage.getOutcomes.mockReset().mockReturnValue([]);
+  });
+
+  it("should return { score: 50, count: 0 } for a self-promise with no outcomes", async () => {
+    Storage.getPromises.mockReturnValue([
+      { id: "prm_self_001", promiserId: "priya_001", kind: "self" },
+    ]);
+    Storage.getOutcomes.mockReturnValue([]);
+
+    const res = await request(app).get(
+      "/api/promises/prm_self_001/self-trust",
+    );
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ score: 50, count: 0 });
+  });
+
+  it("should score a forgotten outcome far lower than a failed_but_noticed outcome", async () => {
+    Storage.getPromises.mockReturnValue([
+      { id: "prm_self_001", promiserId: "priya_001", kind: "self" },
+      { id: "prm_self_002", promiserId: "priya_001", kind: "self" },
+    ]);
+
+    Storage.getOutcomes.mockReturnValueOnce([
+      { promiseId: "prm_self_001", outcome: "forgotten" },
+    ]);
+    const forgottenRes = await request(app).get(
+      "/api/promises/prm_self_001/self-trust",
+    );
+
+    Storage.getOutcomes.mockReturnValueOnce([
+      { promiseId: "prm_self_002", outcome: "failed_but_noticed" },
+    ]);
+    const noticedRes = await request(app).get(
+      "/api/promises/prm_self_002/self-trust",
+    );
+
+    expect(forgottenRes.body.score).toBeLessThan(noticedRes.body.score);
+  });
+
+  it("should return a score matching a hand-computation from logged outcomes", async () => {
+    Storage.getPromises.mockReturnValue([
+      { id: "prm_self_001", promiserId: "priya_001", kind: "self" },
+    ]);
+    // kept (1.0), partially_kept (0.7) -> average 0.85 -> 85
+    Storage.getOutcomes.mockReturnValue([
+      { promiseId: "prm_self_001", outcome: "kept" },
+      { promiseId: "prm_self_001", outcome: "partially_kept" },
+    ]);
+
+    const res = await request(app).get(
+      "/api/promises/prm_self_001/self-trust",
+    );
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ score: 85, count: 2 });
+  });
+
+  it("should return 404 for a non-existent promise", async () => {
+    Storage.getPromises.mockReturnValue([]);
+
+    const res = await request(app).get(
+      "/api/promises/prm_does_not_exist/self-trust",
+    );
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty("error");
+  });
+
+  it("should return 400 when the promise is not a self-promise", async () => {
+    Storage.getPromises.mockReturnValue([
+      { id: "prm_assessed_001", promiserId: "user_001", kind: "assessed" },
+    ]);
+
+    const res = await request(app).get(
+      "/api/promises/prm_assessed_001/self-trust",
+    );
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
   });
 });
