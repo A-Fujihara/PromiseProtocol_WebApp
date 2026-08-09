@@ -155,6 +155,8 @@ describe("GET /api/promises/:id/self-trust (PP-A4)", () => {
   afterEach(() => {
     Storage.getPromises.mockReset().mockReturnValue([]);
     Storage.getOutcomes.mockReset().mockReturnValue([]);
+    Storage.savePromise.mockReset().mockImplementation((promise) => promise);
+    Storage.saveOutcome.mockReset().mockImplementation((outcome) => outcome);
   });
 
   it("should return { score: 50, count: 0 } for a self-promise with no outcomes", async () => {
@@ -193,18 +195,56 @@ describe("GET /api/promises/:id/self-trust (PP-A4)", () => {
     expect(forgottenRes.body.score).toBeLessThan(noticedRes.body.score);
   });
 
-  it("should return a score matching a hand-computation from logged outcomes", async () => {
-    Storage.getPromises.mockReturnValue([
-      { id: "prm_self_001", promiserId: "priya_001", kind: "self" },
-    ]);
+  it("should walk the full flow (create self-promise -> log outcomes -> self-trust score) and match a hand-computation", async () => {
+    // In-memory backing arrays so savePromise/getPromises and
+    // saveOutcome/getOutcomes behave like real storage for this test,
+    // instead of stubbing getOutcomes directly. This drives the request
+    // through POST /api/promises and POST /api/outcomes for real, so the
+    // test actually proves the two routes agree on how a promise's
+    // outcomes are looked up, not just that computeSelfTrust can do math.
+    const promises = [];
+    const outcomes = [];
+
+    Storage.savePromise.mockImplementation((promise) => {
+      promises.push(promise);
+      return promise;
+    });
+    Storage.getPromises.mockImplementation(() => promises);
+    Storage.saveOutcome.mockImplementation((outcome) => {
+      outcomes.push(outcome);
+      return outcome;
+    });
+    Storage.getOutcomes.mockImplementation(({ promiseId } = {}) =>
+      outcomes.filter((o) => o.promiseId === promiseId),
+    );
+
+    const createRes = await request(app)
+      .post("/api/promises")
+      .send({
+        promiserId: "priya_001",
+        promiseeScope: "self",
+        domain: "wellness",
+        objective: "Meditate for 10 minutes every morning",
+        days: 14,
+        successCriteria: "Logged a session on at least 12 of 14 days",
+        kind: "self",
+      });
+    expect(createRes.status).toBe(201);
+    const promiseId = createRes.body.id;
+
     // kept (1.0), partially_kept (0.7) -> average 0.85 -> 85
-    Storage.getOutcomes.mockReturnValue([
-      { promiseId: "prm_self_001", outcome: "kept" },
-      { promiseId: "prm_self_001", outcome: "partially_kept" },
-    ]);
+    const outcomeOneRes = await request(app)
+      .post("/api/outcomes")
+      .send({ promiseId, outcome: "kept" });
+    expect(outcomeOneRes.status).toBe(201);
+
+    const outcomeTwoRes = await request(app)
+      .post("/api/outcomes")
+      .send({ promiseId, outcome: "partially_kept" });
+    expect(outcomeTwoRes.status).toBe(201);
 
     const res = await request(app).get(
-      "/api/promises/prm_self_001/self-trust",
+      `/api/promises/${promiseId}/self-trust`,
     );
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ score: 85, count: 2 });
