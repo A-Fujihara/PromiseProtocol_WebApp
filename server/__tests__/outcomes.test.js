@@ -94,7 +94,7 @@ describe("GET /api/outcomes", () => {
   it("should return outcomes for a given promiseId", async () => {
     const res = await request(app)
       .get("/api/outcomes")
-      .query({ promiseId: "prm_self_001" });
+      .query({ promiseId: "prm_self_001", userId: "user_001" });
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body[0]).toHaveProperty("promiseId", "prm_self_001");
@@ -104,5 +104,32 @@ describe("GET /api/outcomes", () => {
     const res = await request(app).get("/api/outcomes");
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty("error");
+  });
+
+  describe("Private self-promise access enforcement (PP-A6)", () => {
+    it("returns 404 for a private self-promise's outcomes to a different user id", async () => {
+      const res = await request(app)
+        .get("/api/outcomes")
+        .query({ promiseId: "prm_self_001", userId: "mallory_002" });
+      expect(res.status).toBe(404);
+      expect(res.body).not.toEqual(
+        expect.arrayContaining([expect.anything()]),
+      );
+    });
+
+    it("returns 404 when no userId is supplied for a private self-promise", async () => {
+      const res = await request(app)
+        .get("/api/outcomes")
+        .query({ promiseId: "prm_self_001" });
+      expect(res.status).toBe(404);
+    });
+
+    it("still returns outcomes for a public/assessed promise without a userId (regression)", async () => {
+      const res = await request(app)
+        .get("/api/outcomes")
+        .query({ promiseId: "prm_assessed_001" });
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+    });
   });
 });

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { logOutcome, listOutcomes, getPromiseById } = require("../src/cli");
+const { canAccessPromise } = require("../src/accessControl");
 
 router.post("/", (req, res) => {
   const { promiseId, outcome, note, attachmentRef } = req.body;
@@ -27,11 +28,18 @@ router.post("/", (req, res) => {
   }
 });
 
+// PP-A6: outcomes for a private self-promise are only visible to its owner,
+// same check as GET /api/promises/:id.
 router.get("/", (req, res) => {
-  const { promiseId } = req.query;
+  const { promiseId, userId } = req.query;
 
   if (!promiseId) {
     return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const promise = getPromiseById(promiseId);
+  if (!canAccessPromise(promise, userId)) {
+    return res.status(404).json({ error: "Promise not found" });
   }
 
   const outcomes = listOutcomes({ promiseId });

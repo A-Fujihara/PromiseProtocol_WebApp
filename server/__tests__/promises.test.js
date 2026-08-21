@@ -161,36 +161,51 @@ describe("GET /api/promises/:id/self-trust (PP-A4)", () => {
 
   it("should return { score: 50, count: 0 } for a self-promise with no outcomes", async () => {
     Storage.getPromises.mockReturnValue([
-      { id: "prm_self_001", promiserId: "priya_001", kind: "self" },
+      {
+        id: "prm_self_001",
+        promiserId: "priya_001",
+        kind: "self",
+        visibility: "private",
+      },
     ]);
     Storage.getOutcomes.mockReturnValue([]);
 
-    const res = await request(app).get(
-      "/api/promises/prm_self_001/self-trust",
-    );
+    const res = await request(app)
+      .get("/api/promises/prm_self_001/self-trust")
+      .query({ userId: "priya_001" });
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ score: 50, count: 0 });
   });
 
   it("should score a forgotten outcome far lower than a failed_but_noticed outcome", async () => {
     Storage.getPromises.mockReturnValue([
-      { id: "prm_self_001", promiserId: "priya_001", kind: "self" },
-      { id: "prm_self_002", promiserId: "priya_001", kind: "self" },
+      {
+        id: "prm_self_001",
+        promiserId: "priya_001",
+        kind: "self",
+        visibility: "private",
+      },
+      {
+        id: "prm_self_002",
+        promiserId: "priya_001",
+        kind: "self",
+        visibility: "private",
+      },
     ]);
 
     Storage.getOutcomes.mockReturnValueOnce([
       { promiseId: "prm_self_001", outcome: "forgotten" },
     ]);
-    const forgottenRes = await request(app).get(
-      "/api/promises/prm_self_001/self-trust",
-    );
+    const forgottenRes = await request(app)
+      .get("/api/promises/prm_self_001/self-trust")
+      .query({ userId: "priya_001" });
 
     Storage.getOutcomes.mockReturnValueOnce([
       { promiseId: "prm_self_002", outcome: "failed_but_noticed" },
     ]);
-    const noticedRes = await request(app).get(
-      "/api/promises/prm_self_002/self-trust",
-    );
+    const noticedRes = await request(app)
+      .get("/api/promises/prm_self_002/self-trust")
+      .query({ userId: "priya_001" });
 
     expect(forgottenRes.body.score).toBeLessThan(noticedRes.body.score);
   });
@@ -243,9 +258,9 @@ describe("GET /api/promises/:id/self-trust (PP-A4)", () => {
       .send({ promiseId, outcome: "partially_kept" });
     expect(outcomeTwoRes.status).toBe(201);
 
-    const res = await request(app).get(
-      `/api/promises/${promiseId}/self-trust`,
-    );
+    const res = await request(app)
+      .get(`/api/promises/${promiseId}/self-trust`)
+      .query({ userId: "priya_001" });
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ score: 85, count: 2 });
   });
@@ -270,5 +285,63 @@ describe("GET /api/promises/:id/self-trust (PP-A4)", () => {
     );
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty("error");
+  });
+});
+
+describe("Private self-promise access enforcement (PP-A6)", () => {
+  const owner = "priya_001";
+  const otherUser = "mallory_002";
+
+  beforeEach(() => {
+    Storage.getPromises.mockReset().mockReturnValue([
+      {
+        id: "prm_self_001",
+        promiserId: owner,
+        kind: "self",
+        visibility: "private",
+      },
+    ]);
+    Storage.getOutcomes.mockReset().mockReturnValue([]);
+  });
+
+  describe("GET /api/promises/:id", () => {
+    it("returns the promise to its owner", async () => {
+      const res = await request(app)
+        .get("/api/promises/prm_self_001")
+        .query({ userId: owner });
+      expect(res.status).toBe(200);
+      expect(res.body.id).toBe("prm_self_001");
+    });
+
+    it("returns 404 to a different user id, not the promise data", async () => {
+      const res = await request(app)
+        .get("/api/promises/prm_self_001")
+        .query({ userId: otherUser });
+      expect(res.status).toBe(404);
+      expect(res.body).not.toHaveProperty("promiserId");
+    });
+
+    it("returns 404 when no userId is supplied at all", async () => {
+      const res = await request(app).get("/api/promises/prm_self_001");
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe("GET /api/promises/:id/self-trust", () => {
+    it("returns the score to its owner", async () => {
+      const res = await request(app)
+        .get("/api/promises/prm_self_001/self-trust")
+        .query({ userId: owner });
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("score");
+    });
+
+    it("returns 404 to a different user id, not the score", async () => {
+      const res = await request(app)
+        .get("/api/promises/prm_self_001/self-trust")
+        .query({ userId: otherUser });
+      expect(res.status).toBe(404);
+      expect(res.body).not.toHaveProperty("score");
+    });
   });
 });
