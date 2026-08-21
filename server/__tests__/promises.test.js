@@ -149,6 +149,50 @@ describe("GET /api/promises", () => {
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
+
+  describe("Private self-promise access enforcement (PP-A6)", () => {
+    it("excludes another user's private self-promise from the list", async () => {
+      Storage.getPromises.mockReturnValue([
+        {
+          id: "prm_public_001",
+          promiserId: "user_001",
+          kind: "assessed",
+          visibility: "public",
+        },
+        {
+          id: "prm_self_001",
+          promiserId: "priya_001",
+          kind: "self",
+          visibility: "private",
+        },
+      ]);
+
+      const res = await request(app)
+        .get("/api/promises")
+        .query({ userId: "mallory_002" });
+      expect(res.status).toBe(200);
+      const ids = res.body.map((p) => p.id);
+      expect(ids).toContain("prm_public_001");
+      expect(ids).not.toContain("prm_self_001");
+    });
+
+    it("includes the owner's own private self-promise in their list", async () => {
+      Storage.getPromises.mockReturnValue([
+        {
+          id: "prm_self_001",
+          promiserId: "priya_001",
+          kind: "self",
+          visibility: "private",
+        },
+      ]);
+
+      const res = await request(app)
+        .get("/api/promises")
+        .query({ userId: "priya_001" });
+      expect(res.status).toBe(200);
+      expect(res.body.map((p) => p.id)).toContain("prm_self_001");
+    });
+  });
 });
 
 describe("GET /api/promises/:id/self-trust (PP-A4)", () => {
@@ -250,12 +294,12 @@ describe("GET /api/promises/:id/self-trust (PP-A4)", () => {
     // kept (1.0), partially_kept (0.7) -> average 0.85 -> 85
     const outcomeOneRes = await request(app)
       .post("/api/outcomes")
-      .send({ promiseId, outcome: "kept" });
+      .send({ promiseId, outcome: "kept", userId: "priya_001" });
     expect(outcomeOneRes.status).toBe(201);
 
     const outcomeTwoRes = await request(app)
       .post("/api/outcomes")
-      .send({ promiseId, outcome: "partially_kept" });
+      .send({ promiseId, outcome: "partially_kept", userId: "priya_001" });
     expect(outcomeTwoRes.status).toBe(201);
 
     const res = await request(app)

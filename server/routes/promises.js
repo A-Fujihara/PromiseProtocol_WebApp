@@ -51,9 +51,13 @@ router.post("/", (req, res) => {
   }
 });
 
+// PP-A6: the list endpoint returns every promise, so it must filter out
+// private ones that aren't the requester's own, same check as GET /:id.
 router.get("/", (req, res) => {
-  const promises = listPromises();
-  return res.status(200).json(promises || []);
+  const { userId } = req.query;
+  const promises = listPromises() || [];
+  const visible = promises.filter((p) => canAccessPromise(p, userId));
+  return res.status(200).json(visible);
 });
 
 // PP-A6: fetch a single promise by id. A private promise is only visible to
