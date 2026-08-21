@@ -1,16 +1,22 @@
 const express = require("express");
 const router = express.Router();
 const { logOutcome, listOutcomes, getPromiseById } = require("../src/cli");
+const { canAccessPromise } = require("../src/accessControl");
 
 router.post("/", (req, res) => {
-  const { promiseId, outcome, note, attachmentRef } = req.body;
+  const { promiseId, outcome, note, attachmentRef, userId } = req.body;
 
   if (!promiseId || !outcome) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   const promise = getPromiseById(promiseId);
-  if (!promise) {
+  // PP-A6: a private self-promise can only have outcomes logged by its
+  // owner. Checked before the not-found/kind checks below so a non-owner
+  // gets the same 404 whether the promise is private or doesn't exist,
+  // and can't use this endpoint to log against (or probe the existence
+  // of) someone else's private promise.
+  if (!canAccessPromise(promise, userId)) {
     return res.status(404).json({ error: "Promise not found" });
   }
   if (promise.kind !== "self") {
@@ -27,11 +33,18 @@ router.post("/", (req, res) => {
   }
 });
 
+// PP-A6: outcomes for a private self-promise are only visible to its owner,
+// same check as GET /api/promises/:id.
 router.get("/", (req, res) => {
-  const { promiseId } = req.query;
+  const { promiseId, userId } = req.query;
 
   if (!promiseId) {
     return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const promise = getPromiseById(promiseId);
+  if (!canAccessPromise(promise, userId)) {
+    return res.status(404).json({ error: "Promise not found" });
   }
 
   const outcomes = listOutcomes({ promiseId });
