@@ -72,6 +72,11 @@
   width: auto;
 }
 
+.disabledOption {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .submitButton {
   margin-top: 12px;
   border: none;

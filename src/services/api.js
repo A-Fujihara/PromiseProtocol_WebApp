@@ -26,6 +26,22 @@ export const createPromise = async (req) => {
   }
 };
 
+// PP-B1: self-promises submit through their own call, kept separate from
+// createPromise so a self-promise's payload (no stake, no promisee info)
+// never gets mixed with the assessed-promise path.
+export const createSelfPromise = async (req) => {
+  try {
+    const res = await httpService.post('/api/promises', req);
+    return res.data;
+  } catch (error) {
+    throw {
+      message: 'Failed to POST /api/promises (self-promise)',
+      originalError: error,
+      status: error.response?.status,
+    };
+  }
+};
+
 export const getAssessments = async () => {
   try {
     const res = await httpService.get('/api/assessments');

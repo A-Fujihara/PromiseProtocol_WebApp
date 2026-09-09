@@ -2,6 +2,7 @@ import { vi, describe, test, expect, beforeEach } from 'vitest';
 import {
   getPromises,
   createPromise,
+  createSelfPromise,
   getAssessments,
   submitAssessment,
 } from './api';
@@ -63,6 +64,23 @@ describe('API Functions', () => {
     expect(res).toEqual(mockRes.data);
   });
 
+  test('POST /api/promises (self-promise)', async () => {
+    const mockReq = {
+      promiserId: 'dev_user_001',
+      promiseeScope: 'self',
+      domain: 'health',
+      objective: 'Run 3 times a week for 30 days',
+      days: 30,
+      successCriteria: 'Completed 12 runs in 30 days',
+      kind: 'self',
+      visibility: 'private',
+    };
+    const mockRes = { data: mockReq, status: 201 };
+    httpService.post.mockResolvedValue(mockRes);
+    const res = await createSelfPromise(mockReq);
+    expect(res).toEqual(mockRes.data);
+  });
+
   test('GET /api/assessments', async () => {
     const mockResData = [
       {
@@ -110,6 +128,16 @@ describe('Error handling', () => {
     httpService.post.mockRejectedValue({ response: { status: 400 } });
     try {
       await createPromise({});
+      throw new Error('Did not throw error');
+    } catch (error) {
+      expect(error.status).toBe(400);
+    }
+  });
+
+  test('POST /api/promises (self-promise)', async () => {
+    httpService.post.mockRejectedValue({ response: { status: 400 } });
+    try {
+      await createSelfPromise({});
       throw new Error('Did not throw error');
     } catch (error) {
       expect(error.status).toBe(400);

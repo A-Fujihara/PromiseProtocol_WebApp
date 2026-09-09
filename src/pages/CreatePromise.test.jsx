@@ -5,9 +5,10 @@ import CreatePromise from './CreatePromise';
 
 vi.mock('../services/api', () => ({
   createPromise: vi.fn(),
+  createSelfPromise: vi.fn(),
 }));
 
-import { createPromise } from '../services/api';
+import { createPromise, createSelfPromise } from '../services/api';
 
 describe('CreatePromise', () => {
   beforeEach(() => {
@@ -204,6 +205,136 @@ describe('CreatePromise', () => {
       expect(
         screen.getByText('Failed to create commitment. Please try again.')
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('self-promise mode (PP-B1)', () => {
+    test('hides recipient, scope, and stake fields when self-promise mode is selected', async () => {
+      const user = userEvent.setup();
+      render(<CreatePromise />);
+
+      expect(
+        screen.getByLabelText('Commitment recipient name')
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText('Commitment scope')).toBeInTheDocument();
+      expect(screen.getByLabelText('Reputational')).toBeInTheDocument();
+
+      await user.click(screen.getByLabelText('Promise to myself'));
+
+      expect(
+        screen.queryByLabelText('Commitment recipient name')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Commitment scope')
+      ).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Reputational')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Financial')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Deposit amount')).not.toBeInTheDocument();
+    });
+
+    test('restores recipient, scope, and stake fields when switching back to assessed mode', async () => {
+      const user = userEvent.setup();
+      render(<CreatePromise />);
+
+      await user.click(screen.getByLabelText('Promise to myself'));
+      await user.click(screen.getByLabelText('Assessed promise'));
+
+      expect(
+        screen.getByLabelText('Commitment recipient name')
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText('Commitment scope')).toBeInTheDocument();
+      expect(screen.getByLabelText('Reputational')).toBeInTheDocument();
+    });
+
+    test('submits a private self-promise with no promisee info and no stake', async () => {
+      const user = userEvent.setup();
+      createSelfPromise.mockResolvedValue({ id: 'prm_self_1' });
+      render(<CreatePromise />);
+
+      await user.click(screen.getByLabelText('Promise to myself'));
+
+      await user.type(
+        screen.getByLabelText('Commitment objective'),
+        'Go to the gym'
+      );
+      await user.type(screen.getByLabelText('Domain'), 'Health');
+      await user.type(screen.getByLabelText('Timeline (days)'), '30');
+      await user.type(
+        screen.getByLabelText('Success criteria'),
+        'I go at least 3x per week'
+      );
+
+      await user.click(
+        screen.getByRole('button', { name: 'Submit Commitment' })
+      );
+
+      await waitFor(() => {
+        expect(createSelfPromise).toHaveBeenCalledTimes(1);
+      });
+
+      expect(createPromise).not.toHaveBeenCalled();
+      expect(createSelfPromise).toHaveBeenCalledWith({
+        promiserId: 'dev_user_001',
+        promiseeScope: 'self',
+        domain: 'Health',
+        objective: 'Go to the gym',
+        days: 30,
+        successCriteria: 'I go at least 3x per week',
+        kind: 'self',
+        visibility: 'private',
+      });
+      expect(createSelfPromise.mock.calls[0][0]).not.toHaveProperty(
+        'promiseeName'
+      );
+      expect(createSelfPromise.mock.calls[0][0]).not.toHaveProperty('stake');
+    });
+
+    test('does not require recipient, scope, or stake fields to submit a self-promise', async () => {
+      const user = userEvent.setup();
+      createSelfPromise.mockResolvedValue({ id: 'prm_self_2' });
+      render(<CreatePromise />);
+
+      await user.click(screen.getByLabelText('Promise to myself'));
+      await user.type(
+        screen.getByLabelText('Commitment objective'),
+        'Read every day'
+      );
+      await user.type(screen.getByLabelText('Domain'), 'Personal');
+      await user.type(screen.getByLabelText('Timeline (days)'), '7');
+      await user.type(
+        screen.getByLabelText('Success criteria'),
+        'Read at least one page daily'
+      );
+
+      await user.click(
+        screen.getByRole('button', { name: 'Submit Commitment' })
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Commitment created successfully.')
+        ).toBeInTheDocument();
+      });
+    });
+
+    test('renders the "Make public" toggle disabled and does nothing when clicked', async () => {
+      const user = userEvent.setup();
+      render(<CreatePromise />);
+
+      await user.click(screen.getByLabelText('Promise to myself'));
+
+      const makePublicToggle = screen.getByLabelText('Make public');
+      expect(makePublicToggle).toBeDisabled();
+      expect(makePublicToggle).not.toBeChecked();
+
+      await user.click(makePublicToggle);
+
+      expect(makePublicToggle).not.toBeChecked();
+    });
+
+    test('does not render the "Make public" toggle in assessed mode', () => {
+      render(<CreatePromise />);
+      expect(screen.queryByLabelText('Make public')).not.toBeInTheDocument();
     });
   });
 });
