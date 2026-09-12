@@ -88,8 +88,9 @@ export default function PromiseDetail() {
   const status = promise.status || 'pending';
   const cfg = STATUS[status] || STATUS.pending;
 
-  const stakeDisplay =
-    promise.stake.type === 'financial'
+  const stakeDisplay = !promise.stake
+    ? 'No deposit'
+    : promise.stake.type === 'financial'
       ? `$${promise.stake.amount}`
       : 'Reputation';
 
