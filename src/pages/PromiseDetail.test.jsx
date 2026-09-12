@@ -188,4 +188,32 @@ describe('PromiseDetail', () => {
 
     expect(screen.getAllByText('--').length).toBeGreaterThan(0);
   });
+
+  test('renders "No deposit" instead of crashing when stake is null (self-promise)', async () => {
+    const selfPromise = {
+      ...mockPendingPromise,
+      kind: 'self',
+      visibility: 'private',
+      stake: null,
+    };
+    getPromises.mockResolvedValue([selfPromise]);
+    getAssessments.mockResolvedValue([]);
+
+    renderWithRouter('prm_001');
+
+    await waitFor(() => {
+      expect(screen.getByText('No deposit')).toBeInTheDocument();
+    });
+  });
+
+  test('requests promises scoped to the current user', async () => {
+    getPromises.mockResolvedValue([mockPendingPromise]);
+    getAssessments.mockResolvedValue([]);
+
+    renderWithRouter('prm_001');
+
+    await waitFor(() => {
+      expect(getPromises).toHaveBeenCalledWith('dev_user_001');
+    });
+  });
 });

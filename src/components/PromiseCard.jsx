@@ -81,11 +81,17 @@ export default function PromiseCard({
           <div className={styles.cardFooterLeft}>
             <span className={styles.stakeChip}>
               <span className={styles.stakeIcon}>
-                {promise.stake.type === 'financial' ? '$' : '◎'}
+                {promise.stake?.type === 'financial'
+                  ? '$'
+                  : promise.stake
+                    ? '◎'
+                    : '—'}
               </span>
-              {promise.stake.type === 'financial'
-                ? `$${promise.stake.amount} deposited`
-                : 'Reputation deposited'}
+              {!promise.stake
+                ? 'No deposit'
+                : promise.stake.type === 'financial'
+                  ? `$${promise.stake.amount} deposited`
+                  : 'Reputation deposited'}
             </span>
             {showDateAdded && (
               <span className={styles.createdAt}>Created {dateAddedStr}</span>

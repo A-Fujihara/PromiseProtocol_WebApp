@@ -15,7 +15,7 @@ export default function Dashboard() {
     async function fetchData() {
       try {
         const [allPromises, allAssessments] = await Promise.all([
-          getPromises(),
+          getPromises(CURRENT_USER),
           getAssessments(),
         ]);
 

@@ -2,6 +2,7 @@ import { vi, describe, test, expect, beforeEach } from 'vitest';
 import {
   getPromises,
   createPromise,
+  createSelfPromise,
   getAssessments,
   submitAssessment,
 } from './api';
@@ -45,6 +46,19 @@ describe('API Functions', () => {
     httpService.get.mockResolvedValue({ data: mockResData });
     const res = await getPromises();
     expect(res).toEqual(mockResData);
+    expect(httpService.get).toHaveBeenCalledWith('/api/promises', {
+      params: undefined,
+    });
+  });
+
+  test('GET /api/promises with userId', async () => {
+    const mockResData = [{ id: 'prm_self_1', kind: 'self' }];
+    httpService.get.mockResolvedValue({ data: mockResData });
+    const res = await getPromises('dev_user_001');
+    expect(res).toEqual(mockResData);
+    expect(httpService.get).toHaveBeenCalledWith('/api/promises', {
+      params: { userId: 'dev_user_001' },
+    });
   });
 
   test('POST /api/promises', async () => {
@@ -60,6 +74,23 @@ describe('API Functions', () => {
     const mockRes = { data: mockReq, status: 201 };
     httpService.post.mockResolvedValue(mockRes);
     const res = await createPromise(mockReq);
+    expect(res).toEqual(mockRes.data);
+  });
+
+  test('POST /api/promises (self-promise)', async () => {
+    const mockReq = {
+      promiserId: 'dev_user_001',
+      promiseeScope: 'self',
+      domain: 'health',
+      objective: 'Run 3 times a week for 30 days',
+      days: 30,
+      successCriteria: 'Completed 12 runs in 30 days',
+      kind: 'self',
+      visibility: 'private',
+    };
+    const mockRes = { data: mockReq, status: 201 };
+    httpService.post.mockResolvedValue(mockRes);
+    const res = await createSelfPromise(mockReq);
     expect(res).toEqual(mockRes.data);
   });
 
@@ -110,6 +141,16 @@ describe('Error handling', () => {
     httpService.post.mockRejectedValue({ response: { status: 400 } });
     try {
       await createPromise({});
+      throw new Error('Did not throw error');
+    } catch (error) {
+      expect(error.status).toBe(400);
+    }
+  });
+
+  test('POST /api/promises (self-promise)', async () => {
+    httpService.post.mockRejectedValue({ response: { status: 400 } });
+    try {
+      await createSelfPromise({});
       throw new Error('Did not throw error');
     } catch (error) {
       expect(error.status).toBe(400);

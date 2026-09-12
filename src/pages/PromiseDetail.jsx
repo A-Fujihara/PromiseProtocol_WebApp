@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getPromises, getAssessments } from '../services/api';
 import styles from './PromiseDetail.module.css';
 
+const CURRENT_USER = 'dev_user_001'; // Epic 4 Auth stub
+
 const STATUS = {
   pending: {
     label: 'Active',
@@ -34,7 +36,7 @@ export default function PromiseDetail() {
     async function fetchData() {
       try {
         const [allPromises, allAssessments] = await Promise.all([
-          getPromises(),
+          getPromises(CURRENT_USER),
           getAssessments(),
         ]);
 
@@ -88,8 +90,9 @@ export default function PromiseDetail() {
   const status = promise.status || 'pending';
   const cfg = STATUS[status] || STATUS.pending;
 
-  const stakeDisplay =
-    promise.stake.type === 'financial'
+  const stakeDisplay = !promise.stake
+    ? 'No deposit'
+    : promise.stake.type === 'financial'
       ? `$${promise.stake.amount}`
       : 'Reputation';
 

@@ -1,8 +1,10 @@
 import httpService from './httpService';
 
-export const getPromises = async () => {
+export const getPromises = async (userId) => {
   try {
-    const res = await httpService.get('/api/promises');
+    const res = await httpService.get('/api/promises', {
+      params: userId ? { userId } : undefined,
+    });
     return res.data;
   } catch (error) {
     throw {
@@ -20,6 +22,22 @@ export const createPromise = async (req) => {
   } catch (error) {
     throw {
       message: 'Failed to POST /api/promises',
+      originalError: error,
+      status: error.response?.status,
+    };
+  }
+};
+
+// PP-B1: self-promises submit through their own call, kept separate from
+// createPromise so a self-promise's payload (no stake, no promisee info)
+// never gets mixed with the assessed-promise path.
+export const createSelfPromise = async (req) => {
+  try {
+    const res = await httpService.post('/api/promises', req);
+    return res.data;
+  } catch (error) {
+    throw {
+      message: 'Failed to POST /api/promises (self-promise)',
       originalError: error,
       status: error.response?.status,
     };

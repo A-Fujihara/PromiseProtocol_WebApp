@@ -62,11 +62,12 @@ describe('MyPromises', () => {
     vi.clearAllMocks();
   });
 
-  const renderWithRouter = () => render(
-    <MemoryRouter>
-      <MyPromises />
-    </MemoryRouter>
-  );
+  const renderWithRouter = () =>
+    render(
+      <MemoryRouter>
+        <MyPromises />
+      </MemoryRouter>
+    );
 
   test('renders all promises correctly with mocked API data', async () => {
     getPromises.mockResolvedValue(mockPromises);
@@ -80,6 +81,43 @@ describe('MyPromises', () => {
     expect(screen.getByText('Ship feature')).toBeInTheDocument();
     expect(screen.getByText('Fix bug')).toBeInTheDocument();
     expect(screen.getByText('3 Total Commitments')).toBeInTheDocument();
+  });
+
+  test('requests promises scoped to the current user', async () => {
+    getPromises.mockResolvedValue(mockPromises);
+
+    renderWithRouter();
+
+    await waitFor(() => {
+      expect(getPromises).toHaveBeenCalledWith('dev_user_001');
+    });
+  });
+
+  test("excludes other users' promises even if the API returns them", async () => {
+    const othersPromise = {
+      id: 'prm_004',
+      promiserId: 'other_user_999',
+      promiseeScope: 'public',
+      domain: 'Marketing',
+      objective: 'Belongs to someone else',
+      timeline: 10,
+      successCriteria: 'Should never render here',
+      stake: { type: 'reputational', amount: null, status: 'held' },
+      status: 'pending',
+      createdAt: '2026-04-04',
+    };
+    getPromises.mockResolvedValue([...mockPromises, othersPromise]);
+
+    renderWithRouter();
+
+    await waitFor(() => {
+      expect(screen.getByText('Pay rent')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('3 Total Commitments')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Belongs to someone else')
+    ).not.toBeInTheDocument();
   });
 
   test('each filter tab shows only the correct subset of promises', async () => {
@@ -121,8 +159,12 @@ describe('MyPromises', () => {
 
     await user.click(screen.getByRole('button', { name: 'Kept' }));
 
-    expect(screen.getByText('No commitments match this filter.')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Create your first commitment' })).not.toBeInTheDocument();
+    expect(
+      screen.getByText('No commitments match this filter.')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Create your first commitment' })
+    ).not.toBeInTheDocument();
   });
 
   test('renders true empty state and navigates to /create on click', async () => {
@@ -132,10 +174,14 @@ describe('MyPromises', () => {
     renderWithRouter();
 
     await waitFor(() => {
-      expect(screen.getByText("You haven't made any commitments yet.")).toBeInTheDocument();
+      expect(
+        screen.getByText("You haven't made any commitments yet.")
+      ).toBeInTheDocument();
     });
 
-    const createBtn = screen.getByRole('button', { name: 'Create your first commitment' });
+    const createBtn = screen.getByRole('button', {
+      name: 'Create your first commitment',
+    });
     expect(createBtn).toBeInTheDocument();
 
     await user.click(createBtn);
@@ -155,7 +201,9 @@ describe('MyPromises', () => {
 
     await user.click(screen.getByText('Pay rent'));
 
-    expect(consoleSpy).toHaveBeenCalledWith('Navigate to Promise Detail — wired in Epic 3');
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Navigate to Promise Detail — wired in Epic 3'
+    );
 
     consoleSpy.mockRestore();
   });
