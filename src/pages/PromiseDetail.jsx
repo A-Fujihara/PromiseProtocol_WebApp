@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getPromises, getAssessments } from '../services/api';
 import styles from './PromiseDetail.module.css';
 
+const CURRENT_USER = 'dev_user_001'; // Epic 4 Auth stub
+
 const STATUS = {
   pending: {
     label: 'Active',
@@ -34,7 +36,7 @@ export default function PromiseDetail() {
     async function fetchData() {
       try {
         const [allPromises, allAssessments] = await Promise.all([
-          getPromises(),
+          getPromises(CURRENT_USER),
           getAssessments(),
         ]);
 

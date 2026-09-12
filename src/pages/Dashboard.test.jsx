@@ -107,6 +107,17 @@ describe('Dashboard', () => {
     ).not.toBeInTheDocument();
   });
 
+  test('requests promises scoped to the current user', async () => {
+    getPromises.mockResolvedValue(mockPromises);
+    getAssessments.mockResolvedValue(mockAssessments);
+
+    render(<Dashboard />);
+
+    await waitFor(() => {
+      expect(getPromises).toHaveBeenCalledWith('dev_user_001');
+    });
+  });
+
   test('displays correct counts for total, kept, and broken', async () => {
     getPromises.mockResolvedValue(mockPromises);
     getAssessments.mockResolvedValue(mockAssessments);

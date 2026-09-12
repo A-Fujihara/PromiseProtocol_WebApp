@@ -205,4 +205,15 @@ describe('PromiseDetail', () => {
       expect(screen.getByText('No deposit')).toBeInTheDocument();
     });
   });
+
+  test('requests promises scoped to the current user', async () => {
+    getPromises.mockResolvedValue([mockPendingPromise]);
+    getAssessments.mockResolvedValue([]);
+
+    renderWithRouter('prm_001');
+
+    await waitFor(() => {
+      expect(getPromises).toHaveBeenCalledWith('dev_user_001');
+    });
+  });
 });

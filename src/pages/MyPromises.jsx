@@ -4,6 +4,8 @@ import PromiseCard from '../components/PromiseCard';
 import { getPromises } from '../services/api';
 import styles from './MyPromises.module.css';
 
+const CURRENT_USER = 'dev_user_001'; // Epic 4 Auth stub
+
 const StatusSearchFilter = Object.freeze({
   All: 0,
   Active: 1,
@@ -21,7 +23,7 @@ export default function MyPromises() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const allPromises = await getPromises();
+        const allPromises = await getPromises(CURRENT_USER);
         setPromises(allPromises);
       } catch (err) {
         setError('Failed to load promises. Please try again.');
@@ -77,12 +79,14 @@ export default function MyPromises() {
       </div>
       {loading && <div className={styles.loadingState}>Loading...</div>}
       {error && <div className={styles.errorState}>{error}</div>}
-      
+
       {!loading && !error && promises.length === 0 ? (
         <div className={`${styles.emptyState} ${styles.trueEmptyState}`}>
-          <p className={styles.emptyTitle}>You haven't made any commitments yet.</p>
-          <button 
-            className={styles.createBtn} 
+          <p className={styles.emptyTitle}>
+            You haven't made any commitments yet.
+          </p>
+          <button
+            className={styles.createBtn}
             onClick={() => navigate('/create')}
           >
             Create your first commitment
@@ -90,9 +94,7 @@ export default function MyPromises() {
         </div>
       ) : !loading && !error && filteredPromises.length === 0 ? (
         <div className={styles.emptyState}>
-          <p className={styles.emptyTitle}>
-            No commitments match this filter.
-          </p>
+          <p className={styles.emptyTitle}>No commitments match this filter.</p>
         </div>
       ) : (
         <div className={styles.promiseList}>

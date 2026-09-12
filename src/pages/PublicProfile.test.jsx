@@ -160,4 +160,20 @@ describe('PublicProfile', () => {
       'promiseprotocol.com/profile/dev_user_001'
     );
   });
+
+  // Intentional: unlike MyPromises/Dashboard/PromiseDetail, this page must
+  // NOT pass a userId. It's the one page meant to be safe to share with a
+  // stranger; sending the viewer's own identity here would let the backend
+  // return that viewer's own private self-promises on a page built to be
+  // public. See PP-B1 follow-up discussion.
+  test('requests promises with no userId, so private self-promises never surface here', async () => {
+    getPromises.mockResolvedValue([mockPromise]);
+    getAssessments.mockResolvedValue([]);
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(getPromises).toHaveBeenCalledWith();
+    });
+  });
 });

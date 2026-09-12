@@ -1,8 +1,10 @@
 import httpService from './httpService';
 
-export const getPromises = async () => {
+export const getPromises = async (userId) => {
   try {
-    const res = await httpService.get('/api/promises');
+    const res = await httpService.get('/api/promises', {
+      params: userId ? { userId } : undefined,
+    });
     return res.data;
   } catch (error) {
     throw {
