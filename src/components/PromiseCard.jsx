@@ -81,7 +81,11 @@ export default function PromiseCard({
           <div className={styles.cardFooterLeft}>
             <span className={styles.stakeChip}>
               <span className={styles.stakeIcon}>
-                {promise.stake?.type === 'financial' ? '$' : '◎'}
+                {promise.stake?.type === 'financial'
+                  ? '$'
+                  : promise.stake
+                    ? '◎'
+                    : '—'}
               </span>
               {!promise.stake
                 ? 'No deposit'

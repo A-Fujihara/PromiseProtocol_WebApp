@@ -54,5 +54,7 @@ describe('PromiseCard', () => {
     );
 
     expect(screen.getByText('No deposit')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.queryByText('◎')).not.toBeInTheDocument();
   });
 });

@@ -24,7 +24,7 @@ export default function MyPromises() {
     async function fetchData() {
       try {
         const allPromises = await getPromises(CURRENT_USER);
-        setPromises(allPromises);
+        setPromises(allPromises.filter((p) => p.promiserId === CURRENT_USER));
       } catch (err) {
         setError('Failed to load promises. Please try again.');
       } finally {

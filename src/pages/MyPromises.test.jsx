@@ -93,6 +93,33 @@ describe('MyPromises', () => {
     });
   });
 
+  test("excludes other users' promises even if the API returns them", async () => {
+    const othersPromise = {
+      id: 'prm_004',
+      promiserId: 'other_user_999',
+      promiseeScope: 'public',
+      domain: 'Marketing',
+      objective: 'Belongs to someone else',
+      timeline: 10,
+      successCriteria: 'Should never render here',
+      stake: { type: 'reputational', amount: null, status: 'held' },
+      status: 'pending',
+      createdAt: '2026-04-04',
+    };
+    getPromises.mockResolvedValue([...mockPromises, othersPromise]);
+
+    renderWithRouter();
+
+    await waitFor(() => {
+      expect(screen.getByText('Pay rent')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('3 Total Commitments')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Belongs to someone else')
+    ).not.toBeInTheDocument();
+  });
+
   test('each filter tab shows only the correct subset of promises', async () => {
     const user = userEvent.setup();
     getPromises.mockResolvedValue(mockPromises);
