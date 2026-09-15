@@ -3,6 +3,7 @@ import {
   getPromises,
   createPromise,
   createSelfPromise,
+  logOutcome,
   getAssessments,
   submitAssessment,
 } from './api';
@@ -94,6 +95,38 @@ describe('API Functions', () => {
     expect(res).toEqual(mockRes.data);
   });
 
+  test('POST /api/outcomes', async () => {
+    const mockReq = {
+      promiseId: 'prm_1234567890_abc123',
+      outcome: 'failed_but_noticed',
+      userId: 'dev_user_001',
+      note: 'Missed the gym but caught it same day',
+    };
+    const mockRes = {
+      data: { id: 'out_1234567890_def456', ...mockReq },
+      status: 201,
+    };
+    httpService.post.mockResolvedValue(mockRes);
+    const res = await logOutcome(mockReq);
+    expect(res).toEqual(mockRes.data);
+    expect(httpService.post).toHaveBeenCalledWith('/api/outcomes', mockReq);
+  });
+
+  test('POST /api/outcomes without note or attachmentRef', async () => {
+    const mockReq = {
+      promiseId: 'prm_1234567890_abc123',
+      outcome: 'forgotten',
+      userId: 'dev_user_001',
+    };
+    const mockRes = {
+      data: { id: 'out_1234567890_ghi789', ...mockReq },
+      status: 201,
+    };
+    httpService.post.mockResolvedValue(mockRes);
+    const res = await logOutcome(mockReq);
+    expect(res).toEqual(mockRes.data);
+  });
+
   test('GET /api/assessments', async () => {
     const mockResData = [
       {
@@ -151,6 +184,16 @@ describe('Error handling', () => {
     httpService.post.mockRejectedValue({ response: { status: 400 } });
     try {
       await createSelfPromise({});
+      throw new Error('Did not throw error');
+    } catch (error) {
+      expect(error.status).toBe(400);
+    }
+  });
+
+  test('POST /api/outcomes', async () => {
+    httpService.post.mockRejectedValue({ response: { status: 400 } });
+    try {
+      await logOutcome({});
       throw new Error('Did not throw error');
     } catch (error) {
       expect(error.status).toBe(400);
