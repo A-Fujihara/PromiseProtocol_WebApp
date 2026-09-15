@@ -1,0 +1,103 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pp-text-secondary);
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+/* ─── Outcome options ────────────────────────────────────────────────
+   All five states share this exact rule set. There is intentionally no
+   per-outcome variant (no red/amber styling on failed_but_noticed) - the
+   ticket requires it read as a normal choice, not a failure state. */
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--pp-border);
+  border-radius: var(--pp-border-radius);
+  background: var(--pp-surface);
+  color: var(--pp-text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.option:hover {
+  background: var(--pp-surface-hover);
+}
+
+.option[data-selected='true'] {
+  border-color: var(--pp-accent-border);
+  background: var(--pp-accent-dim);
+}
+
+.option input {
+  accent-color: var(--pp-accent);
+}
+
+/* ─── Note / attachment fields ───────────────────────────────────────── */
+.fieldLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pp-text-primary);
+  margin-top: 4px;
+}
+
+.form textarea,
+.form input[type='text'] {
+  background: var(--pp-surface);
+  border: 1px solid var(--pp-border);
+  border-radius: var(--pp-border-radius);
+  color: var(--pp-text-primary);
+  padding: 10px 12px;
+  font-family: var(--pp-font-family);
+  font-size: 14px;
+}
+
+/* ─── Submit ─────────────────────────────────────────────────────────── */
+.submitButton {
+  margin-top: 6px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--pp-border-radius);
+  background: var(--pp-accent);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.success {
+  color: var(--pp-green);
+  font-size: 13px;
+}
+
+.error {
+  color: var(--pp-red);
+  font-size: 13px;
+}
