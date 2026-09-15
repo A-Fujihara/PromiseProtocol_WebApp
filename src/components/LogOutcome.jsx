@@ -121,8 +121,16 @@ export default function LogOutcome({
         {isSubmitting ? 'Logging...' : 'Log check-in'}
       </button>
 
-      {submitSuccess && <p className={styles.success}>{submitSuccess}</p>}
-      {submitError && <p className={styles.error}>{submitError}</p>}
+      {submitSuccess && (
+        <p className={styles.success} role="status" aria-live="polite">
+          {submitSuccess}
+        </p>
+      )}
+      {submitError && (
+        <p className={styles.error} role="alert">
+          {submitError}
+        </p>
+      )}
     </form>
   );
 }
