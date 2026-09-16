@@ -48,26 +48,30 @@ export default function LogOutcome({
     setSubmitError('');
     setSubmitSuccess('');
 
-    // note and attachmentRef are only added to the payload when they have
-    // real content, so a blank field is omitted rather than sent as ''.
+    // Only the network call is inside try/catch, so a throw from an
+    // onLogged callback (a parent component's own bug) is never mistaken
+    // for a failed submission - the outcome was already persisted by then.
     const payload = { promiseId, outcome: selected, userId };
     const trimmedNote = note.trim();
     if (trimmedNote) payload.note = trimmedNote;
     const trimmedAttachment = attachmentRef.trim();
     if (trimmedAttachment) payload.attachmentRef = trimmedAttachment;
 
+    let result;
     try {
-      const result = await logOutcome(payload);
-      setSubmitSuccess('Check-in logged.');
-      setSelected('');
-      setNote('');
-      setAttachmentRef('');
-      onLogged?.(result);
+      result = await logOutcome(payload);
     } catch {
       setSubmitError('Failed to log this check-in. Please try again.');
-    } finally {
       setIsSubmitting(false);
+      return;
     }
+
+    setSubmitSuccess('Check-in logged.');
+    setSelected('');
+    setNote('');
+    setAttachmentRef('');
+    setIsSubmitting(false);
+    onLogged?.(result);
   };
 
   return (
