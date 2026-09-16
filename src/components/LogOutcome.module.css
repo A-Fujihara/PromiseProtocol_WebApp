@@ -82,7 +82,7 @@
   border: none;
   border-radius: var(--pp-border-radius);
   background: var(--pp-accent);
-  color: #fff;
+  color: var(--pp-bg);
   font-weight: 700;
   cursor: pointer;
 }

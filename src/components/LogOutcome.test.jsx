@@ -152,6 +152,27 @@ describe('LogOutcome', () => {
     });
   });
 
+  test('clears the success message if a resubmit is rejected for no selection', async () => {
+    const user = userEvent.setup();
+    logOutcome.mockResolvedValue({ id: 'out_6' });
+    render(<LogOutcome promiseId="promise_1" userId="user_1" />);
+
+    await user.click(screen.getByLabelText('I did it'));
+    await user.click(screen.getByRole('button', { name: 'Log check-in' }));
+    await waitFor(() => {
+      expect(screen.getByText('Check-in logged.')).toBeInTheDocument();
+    });
+
+    // Selection was reset by the successful submit; pressing submit again
+    // without picking a new outcome should not leave both messages up.
+    await user.click(screen.getByRole('button', { name: 'Log check-in' }));
+
+    expect(
+      screen.getByText('Choose what happened before logging it.')
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Check-in logged.')).not.toBeInTheDocument();
+  });
+
   test('calls onLogged with the created outcome record', async () => {
     const user = userEvent.setup();
     const record = { id: 'out_5', outcome: 'kept' };

@@ -41,6 +41,7 @@ export default function LogOutcome({
 
     if (!selected) {
       setSubmitError('Choose what happened before logging it.');
+      setSubmitSuccess('');
       return;
     }
 
