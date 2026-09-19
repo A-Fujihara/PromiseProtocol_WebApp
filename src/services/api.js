@@ -62,6 +62,43 @@ export const logOutcome = async (req) => {
   }
 };
 
+// PP-B3: live self-trust score for a self-promise, recomputed server-side
+// on every request from logged outcomes - never cached client-side beyond
+// component state, so a fresh call after logging a check-in always reflects
+// the true current value.
+export const getSelfTrust = async (promiseId, userId) => {
+  try {
+    const res = await httpService.get(`/api/promises/${promiseId}/self-trust`, {
+      params: userId ? { userId } : undefined,
+    });
+    return res.data;
+  } catch (error) {
+    throw {
+      message: 'Failed to GET /api/promises/:id/self-trust',
+      originalError: error,
+      status: error.response?.status,
+    };
+  }
+};
+
+// PP-B3: check-in history for a self-promise's detail page. promiseId is
+// always required by the backend (separate from the userId ownership check),
+// so it's sent unconditionally while userId stays optional like getPromises.
+export const getOutcomes = async (promiseId, userId) => {
+  try {
+    const res = await httpService.get('/api/outcomes', {
+      params: userId ? { promiseId, userId } : { promiseId },
+    });
+    return res.data;
+  } catch (error) {
+    throw {
+      message: 'Failed to GET /api/outcomes',
+      originalError: error,
+      status: error.response?.status,
+    };
+  }
+};
+
 export const getAssessments = async () => {
   try {
     const res = await httpService.get('/api/assessments');

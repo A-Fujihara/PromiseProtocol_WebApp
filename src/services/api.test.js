@@ -4,6 +4,8 @@ import {
   createPromise,
   createSelfPromise,
   logOutcome,
+  getSelfTrust,
+  getOutcomes,
   getAssessments,
   submitAssessment,
 } from './api';
@@ -127,6 +129,57 @@ describe('API Functions', () => {
     expect(res).toEqual(mockRes.data);
   });
 
+  test('GET /api/promises/:id/self-trust', async () => {
+    const mockResData = { score: 72, count: 3 };
+    httpService.get.mockResolvedValue({ data: mockResData });
+    const res = await getSelfTrust('prm_self_001', 'dev_user_001');
+    expect(res).toEqual(mockResData);
+    expect(httpService.get).toHaveBeenCalledWith(
+      '/api/promises/prm_self_001/self-trust',
+      { params: { userId: 'dev_user_001' } }
+    );
+  });
+
+  test('GET /api/promises/:id/self-trust without userId', async () => {
+    const mockResData = { score: 50, count: 0 };
+    httpService.get.mockResolvedValue({ data: mockResData });
+    const res = await getSelfTrust('prm_self_001');
+    expect(res).toEqual(mockResData);
+    expect(httpService.get).toHaveBeenCalledWith(
+      '/api/promises/prm_self_001/self-trust',
+      { params: undefined }
+    );
+  });
+
+  test('GET /api/outcomes', async () => {
+    const mockResData = [
+      {
+        id: 'out_1234567890_def456',
+        promiseId: 'prm_self_001',
+        outcome: 'kept',
+        note: null,
+        attachmentRef: null,
+        createdAt: '2026-03-17T00:00:00.000Z',
+      },
+    ];
+    httpService.get.mockResolvedValue({ data: mockResData });
+    const res = await getOutcomes('prm_self_001', 'dev_user_001');
+    expect(res).toEqual(mockResData);
+    expect(httpService.get).toHaveBeenCalledWith('/api/outcomes', {
+      params: { promiseId: 'prm_self_001', userId: 'dev_user_001' },
+    });
+  });
+
+  test('GET /api/outcomes without userId', async () => {
+    const mockResData = [];
+    httpService.get.mockResolvedValue({ data: mockResData });
+    const res = await getOutcomes('prm_self_001');
+    expect(res).toEqual(mockResData);
+    expect(httpService.get).toHaveBeenCalledWith('/api/outcomes', {
+      params: { promiseId: 'prm_self_001' },
+    });
+  });
+
   test('GET /api/assessments', async () => {
     const mockResData = [
       {
@@ -197,6 +250,26 @@ describe('Error handling', () => {
       throw new Error('Did not throw error');
     } catch (error) {
       expect(error.status).toBe(400);
+    }
+  });
+
+  test('GET /api/promises/:id/self-trust', async () => {
+    httpService.get.mockRejectedValue({ response: { status: 404 } });
+    try {
+      await getSelfTrust('prm_self_001', 'dev_user_001');
+      throw new Error('Did not throw error');
+    } catch (error) {
+      expect(error.status).toBe(404);
+    }
+  });
+
+  test('GET /api/outcomes', async () => {
+    httpService.get.mockRejectedValue({ response: { status: 404 } });
+    try {
+      await getOutcomes('prm_self_001', 'dev_user_001');
+      throw new Error('Did not throw error');
+    } catch (error) {
+      expect(error.status).toBe(404);
     }
   });
 
