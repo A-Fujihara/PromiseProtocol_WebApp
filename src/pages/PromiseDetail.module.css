@@ -221,3 +221,26 @@
   font-size: 14px;
   color: var(--pp-text-secondary);
 }
+
+.selfTrustCard {
+  margin-bottom: 20px;
+}
+
+.logOutcomeCard {
+  background: var(--pp-surface);
+  border: 1px solid var(--pp-border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.logOutcomeBody {
+  padding: 20px 24px;
+}
+
+.outcomeNote {
+  font-size: 12px;
+  color: var(--pp-text-secondary);
+  max-width: 240px;
+  text-align: right;
+}

@@ -1,6 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPromises, getAssessments } from '../services/api';
+import {
+  getPromises,
+  getAssessments,
+  getSelfTrust,
+  getOutcomes,
+} from '../services/api';
+import SelfTrustScore from '../components/SelfTrustScore';
+import LogOutcome from '../components/LogOutcome';
 import styles from './PromiseDetail.module.css';
 
 const CURRENT_USER = 'dev_user_001'; // Epic 4 Auth stub
@@ -23,23 +30,44 @@ const STATUS = {
   },
 };
 
+// PP-B3: same plain-language, non-shameful labels as LogOutcome (PP-B2) -
+// failed_but_noticed must read identically to the other four here too, not
+// just at submission time.
+const OUTCOME_LABELS = {
+  kept: 'Did it',
+  partially_kept: 'Did part of it',
+  failed_but_noticed: 'Missed it, logged honestly',
+  forgotten: 'Forgot',
+  renegotiated: 'Changed the commitment',
+};
+
 export default function PromiseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [promise, setPromise] = useState(null);
   const [assessments, setAssessments] = useState([]);
+  const [selfTrust, setSelfTrust] = useState(null);
+  const [outcomes, setOutcomes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
 
+  // PP-B3: pulled out so it can be re-run standalone after a new check-in is
+  // logged, without re-fetching the promise itself or flipping loading/error
+  // state for what's just a background refresh.
+  const fetchSelfPromiseData = useCallback(async () => {
+    const [trustData, outcomeData] = await Promise.all([
+      getSelfTrust(id, CURRENT_USER),
+      getOutcomes(id, CURRENT_USER),
+    ]);
+    setSelfTrust(trustData);
+    setOutcomes(outcomeData);
+  }, [id]);
+
   useEffect(() => {
     async function fetchData() {
       try {
-        const [allPromises, allAssessments] = await Promise.all([
-          getPromises(CURRENT_USER),
-          getAssessments(),
-        ]);
-
+        const allPromises = await getPromises(CURRENT_USER);
         const matched = allPromises.find((p) => p.id === id);
 
         if (!matched) {
@@ -47,12 +75,20 @@ export default function PromiseDetail() {
           return;
         }
 
-        const linkedAssessments = allAssessments.filter(
-          (a) => a.promiseId === id
-        );
-
         setPromise(matched);
-        setAssessments(linkedAssessments);
+
+        // PP-B3: branch by kind - self-promises get their live score and
+        // check-in history, assessed promises keep the existing assessment
+        // flow untouched (per AC regression requirement).
+        if (matched.kind === 'self') {
+          await fetchSelfPromiseData();
+        } else {
+          const allAssessments = await getAssessments();
+          const linkedAssessments = allAssessments.filter(
+            (a) => a.promiseId === id
+          );
+          setAssessments(linkedAssessments);
+        }
       } catch (err) {
         setError('Failed to load promise details. Please try again.');
       } finally {
@@ -61,7 +97,14 @@ export default function PromiseDetail() {
     }
 
     fetchData();
-  }, [id]);
+  }, [id, fetchSelfPromiseData]);
+
+  // PP-B3: the "money moment" from the user story - re-fetch score and
+  // history immediately after a check-in is logged, so the update is visible
+  // without navigating away and back.
+  const handleOutcomeLogged = () => {
+    fetchSelfPromiseData();
+  };
 
   if (loading) {
     return (
@@ -87,6 +130,7 @@ export default function PromiseDetail() {
     );
   }
 
+  const isSelf = promise.kind === 'self';
   const status = promise.status || 'pending';
   const cfg = STATUS[status] || STATUS.pending;
 
@@ -155,53 +199,108 @@ export default function PromiseDetail() {
           </div>
         </div>
 
-        <div className={styles.assessmentsCard}>
-          <div className={styles.assessmentsHeader}>Assessments</div>
-          {assessments.length === 0 ? (
-            <div className={styles.emptyAssessments}>
-              No assessments yet. This promise is still active.
+        {isSelf ? (
+          <>
+            <div className={styles.selfTrustCard}>
+              <SelfTrustScore
+                score={selfTrust?.score}
+                count={selfTrust?.count}
+              />
             </div>
-          ) : (
-            assessments.map((a) => {
-              const aCfg = STATUS[a.judgment] || STATUS.pending;
-              const aDate = new Date(a.createdAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              });
-              return (
-                <div key={a.id} className={styles.assessmentRow}>
-                  <div>
-                    <div className={styles.assessorName}>{a.assessorId}</div>
-                    <div className={styles.assessmentDate}>{aDate}</div>
-                  </div>
-                  <span
-                    className={styles.badge}
-                    style={{ color: aCfg.color, background: aCfg.bg }}
-                  >
-                    {aCfg.label}
-                  </span>
-                </div>
-              );
-            })
-          )}
-        </div>
 
-        {status === 'pending' && (
-          <div className={styles.ctaCard}>
-            <div>
-              <div className={styles.ctaTitle}>Ready to assess?</div>
-              <div className={styles.ctaSubtitle}>
-                Submit a verdict when this commitment is fulfilled or broken.
+            <div className={styles.assessmentsCard}>
+              <div className={styles.assessmentsHeader}>Check-in History</div>
+              {outcomes.length === 0 ? (
+                <div className={styles.emptyAssessments}>
+                  No check-ins yet. Log one below when you're ready.
+                </div>
+              ) : (
+                outcomes.map((o) => {
+                  const oDate = new Date(o.createdAt).toLocaleDateString(
+                    'en-US',
+                    { month: 'short', day: 'numeric', year: 'numeric' }
+                  );
+                  return (
+                    <div key={o.id} className={styles.assessmentRow}>
+                      <div>
+                        <div className={styles.assessorName}>
+                          {OUTCOME_LABELS[o.outcome] || o.outcome}
+                        </div>
+                        <div className={styles.assessmentDate}>{oDate}</div>
+                      </div>
+                      {o.note && (
+                        <span className={styles.outcomeNote}>{o.note}</span>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className={styles.logOutcomeCard}>
+              <div className={styles.assessmentsHeader}>Log a Check-in</div>
+              <div className={styles.logOutcomeBody}>
+                <LogOutcome
+                  promiseId={id}
+                  userId={CURRENT_USER}
+                  onLogged={handleOutcomeLogged}
+                />
               </div>
             </div>
-            <button
-              className={styles.ctaButton}
-              onClick={() => navigate('/create')}
-            >
-              Submit Assessment
-            </button>
-          </div>
+          </>
+        ) : (
+          <>
+            <div className={styles.assessmentsCard}>
+              <div className={styles.assessmentsHeader}>Assessments</div>
+              {assessments.length === 0 ? (
+                <div className={styles.emptyAssessments}>
+                  No assessments yet. This promise is still active.
+                </div>
+              ) : (
+                assessments.map((a) => {
+                  const aCfg = STATUS[a.judgment] || STATUS.pending;
+                  const aDate = new Date(a.createdAt).toLocaleDateString(
+                    'en-US',
+                    { month: 'short', day: 'numeric', year: 'numeric' }
+                  );
+                  return (
+                    <div key={a.id} className={styles.assessmentRow}>
+                      <div>
+                        <div className={styles.assessorName}>
+                          {a.assessorId}
+                        </div>
+                        <div className={styles.assessmentDate}>{aDate}</div>
+                      </div>
+                      <span
+                        className={styles.badge}
+                        style={{ color: aCfg.color, background: aCfg.bg }}
+                      >
+                        {aCfg.label}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {status === 'pending' && (
+              <div className={styles.ctaCard}>
+                <div>
+                  <div className={styles.ctaTitle}>Ready to assess?</div>
+                  <div className={styles.ctaSubtitle}>
+                    Submit a verdict when this commitment is fulfilled or
+                    broken.
+                  </div>
+                </div>
+                <button
+                  className={styles.ctaButton}
+                  onClick={() => navigate('/create')}
+                >
+                  Submit Assessment
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
