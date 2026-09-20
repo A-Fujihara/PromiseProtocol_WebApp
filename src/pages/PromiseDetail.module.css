@@ -244,3 +244,13 @@
   max-width: 240px;
   text-align: right;
 }
+
+.refreshWarning {
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background: var(--pp-red-dim);
+  border: 1px solid var(--pp-red);
+  color: var(--pp-text-primary);
+  font-size: 13px;
+}

@@ -51,6 +51,7 @@ export default function PromiseDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  const [refreshError, setRefreshError] = useState(null);
 
   // PP-B3: pulled out so it can be re-run standalone after a new check-in is
   // logged, without re-fetching the promise itself or flipping loading/error
@@ -101,9 +102,20 @@ export default function PromiseDetail() {
 
   // PP-B3: the "money moment" from the user story - re-fetch score and
   // history immediately after a check-in is logged, so the update is visible
-  // without navigating away and back.
-  const handleOutcomeLogged = () => {
-    fetchSelfPromiseData();
+  // without navigating away and back. The check-in itself already succeeded
+  // by the time this runs (LogOutcome only calls onLogged after its own POST
+  // resolves), so a failure here is just the refresh, not a lost check-in.
+  // Caught explicitly rather than left to reject silently, so the screen
+  // shows a warning instead of quietly displaying a stale score/history.
+  const handleOutcomeLogged = async () => {
+    setRefreshError(null);
+    try {
+      await fetchSelfPromiseData();
+    } catch {
+      setRefreshError(
+        'Check-in saved, but the score and history could not be refreshed. Reload the page to see the latest.'
+      );
+    }
   };
 
   if (loading) {
@@ -236,6 +248,10 @@ export default function PromiseDetail() {
                 })
               )}
             </div>
+
+            {refreshError && (
+              <div className={styles.refreshWarning}>{refreshError}</div>
+            )}
 
             <div className={styles.logOutcomeCard}>
               <div className={styles.assessmentsHeader}>Log a Check-in</div>

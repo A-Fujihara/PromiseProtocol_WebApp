@@ -377,5 +377,46 @@ describe('PromiseDetail (self-promise)', () => {
       expect(getSelfTrust).toHaveBeenCalledTimes(2);
     });
     expect(getOutcomes).toHaveBeenCalledTimes(2);
+
+    // Confirms the refreshed values actually reach the screen, not just
+    // that the fetch functions were re-invoked.
+    await waitFor(() => {
+      expect(screen.getByText('80')).toBeInTheDocument();
+    });
+    expect(screen.getByText('4 check-ins')).toBeInTheDocument();
+    expect(screen.getByText('Went this morning')).toBeInTheDocument();
+  });
+
+  test('shows a warning, without crashing, when the post-check-in refresh fails', async () => {
+    const user = userEvent.setup();
+    getPromises.mockResolvedValue([mockSelfPromise]);
+    getSelfTrust.mockResolvedValue(mockSelfTrust);
+    getOutcomes.mockResolvedValue([]);
+
+    renderWithRouter('prm_self_001');
+
+    await waitFor(() => {
+      expect(screen.getByText('Log a Check-in')).toBeInTheDocument();
+    });
+
+    // The check-in itself still succeeds; only the refresh afterward fails.
+    logOutcome.mockResolvedValue(mockOutcome);
+    getSelfTrust.mockRejectedValue(new Error('Network error'));
+    getOutcomes.mockRejectedValue(new Error('Network error'));
+
+    await user.click(screen.getByLabelText('I did it'));
+    await user.click(screen.getByRole('button', { name: 'Log check-in' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Check-in saved, but the score and history could not be refreshed. Reload the page to see the latest.'
+        )
+      ).toBeInTheDocument();
+    });
+
+    // The last successfully-fetched score stays on screen rather than
+    // disappearing or crashing the page.
+    expect(screen.getByText('72')).toBeInTheDocument();
   });
 });
