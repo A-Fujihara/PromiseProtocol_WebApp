@@ -250,7 +250,9 @@ export default function PromiseDetail() {
             </div>
 
             {refreshError && (
-              <div className={styles.refreshWarning}>{refreshError}</div>
+              <div className={styles.refreshWarning} role="alert">
+                {refreshError}
+              </div>
             )}
 
             <div className={styles.logOutcomeCard}>

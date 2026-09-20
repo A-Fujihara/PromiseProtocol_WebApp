@@ -415,6 +415,11 @@ describe('PromiseDetail (self-promise)', () => {
       ).toBeInTheDocument();
     });
 
+    // Screen readers need to hear this without the user having to find it.
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Check-in saved, but the score and history could not be refreshed.'
+    );
+
     // The last successfully-fetched score stays on screen rather than
     // disappearing or crashing the page.
     expect(screen.getByText('72')).toBeInTheDocument();
