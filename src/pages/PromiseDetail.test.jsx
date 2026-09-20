@@ -424,4 +424,52 @@ describe('PromiseDetail (self-promise)', () => {
     // disappearing or crashing the page.
     expect(screen.getByText('72')).toBeInTheDocument();
   });
+
+  test('does not let a slower, older refresh overwrite a newer one', async () => {
+    const user = userEvent.setup();
+    getPromises.mockResolvedValue([mockSelfPromise]);
+    getSelfTrust.mockResolvedValue(mockSelfTrust);
+    getOutcomes.mockResolvedValue([]);
+    logOutcome.mockResolvedValue(mockOutcome);
+
+    renderWithRouter('prm_self_001');
+
+    await waitFor(() => {
+      expect(screen.getByText('Log a Check-in')).toBeInTheDocument();
+    });
+
+    // Two check-ins logged back to back, whose refreshes resolve out of
+    // order: the second (newer) refresh finishes before the first (older,
+    // slower) one, simulating a real network race.
+    let resolveFirst;
+    const firstFetch = new Promise((resolve) => {
+      resolveFirst = resolve;
+    });
+    getSelfTrust
+      .mockImplementationOnce(() => firstFetch.then(() => mockSelfTrust))
+      .mockResolvedValueOnce({ score: 90, count: 5 });
+    getOutcomes
+      .mockImplementationOnce(() => firstFetch.then(() => []))
+      .mockResolvedValueOnce([mockOutcome]);
+
+    await user.click(screen.getByLabelText('I did it'));
+    await user.click(screen.getByRole('button', { name: 'Log check-in' }));
+    await user.click(screen.getByLabelText('I did it'));
+    await user.click(screen.getByRole('button', { name: 'Log check-in' }));
+
+    // The newer (second) refresh resolves first and should win.
+    await waitFor(() => {
+      expect(screen.getByText('90')).toBeInTheDocument();
+    });
+
+    // Now let the older, slower refresh resolve. Its stale data must not
+    // overwrite what's already on screen.
+    resolveFirst();
+    await waitFor(() => {
+      expect(getSelfTrust).toHaveBeenCalledTimes(3);
+    });
+
+    expect(screen.getByText('90')).toBeInTheDocument();
+    expect(screen.queryByText('72')).not.toBeInTheDocument();
+  });
 });

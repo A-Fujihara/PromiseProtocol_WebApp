@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   getPromises,
@@ -52,15 +52,38 @@ export default function PromiseDetail() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [refreshError, setRefreshError] = useState(null);
+  // PP-B3: guards against overlapping fetchSelfPromiseData calls (two quick
+  // check-ins, or a route change mid-fetch) landing out of order and letting
+  // a slower, older response overwrite a newer one.
+  const fetchSeqRef = useRef(0);
 
   // PP-B3: pulled out so it can be re-run standalone after a new check-in is
   // logged, without re-fetching the promise itself or flipping loading/error
   // state for what's just a background refresh.
   const fetchSelfPromiseData = useCallback(async () => {
-    const [trustData, outcomeData] = await Promise.all([
-      getSelfTrust(id, CURRENT_USER),
-      getOutcomes(id, CURRENT_USER),
-    ]);
+    const seq = ++fetchSeqRef.current;
+    let trustData, outcomeData;
+    try {
+      [trustData, outcomeData] = await Promise.all([
+        getSelfTrust(id, CURRENT_USER),
+        getOutcomes(id, CURRENT_USER),
+      ]);
+    } catch (err) {
+      // Only the most recent request's failure is worth surfacing - an
+      // older, superseded request failing after a newer one already
+      // succeeded isn't a real problem for what's on screen.
+      if (seq === fetchSeqRef.current) {
+        throw err;
+      }
+      return;
+    }
+
+    // A newer request started (and possibly already finished) since this
+    // one began - discard these now-stale results rather than apply them.
+    if (seq !== fetchSeqRef.current) {
+      return;
+    }
+
     setSelfTrust(trustData);
     setOutcomes(outcomeData);
   }, [id]);
