@@ -59,6 +59,14 @@ export default function PromiseDetail() {
   // fetchSelfPromiseData itself, so a guard scoped only to that function
   // would never advance and would miss this case.
   const requestSeqRef = useRef(0);
+  // PP-B3-fix: tracks the actual current route id synchronously, so a stale
+  // onLogged callback (a check-in still in flight when the route changed)
+  // can tell it no longer belongs to the page on screen, before it ever
+  // touches requestSeqRef or fetches anything. This closes a gap the
+  // sequence counter alone doesn't: it only guards against an old request
+  // resolving after a newer one, not against a stale callback minting a
+  // brand-new "latest" request for the wrong promise id.
+  const currentIdRef = useRef(id);
 
   // PP-B3: pulled out so it can be re-run standalone after a new check-in is
   // logged, without re-fetching the promise itself or flipping loading/error
@@ -97,6 +105,8 @@ export default function PromiseDetail() {
   );
 
   useEffect(() => {
+    currentIdRef.current = id;
+
     // PP-B3-fix: PromiseDetail is reused across /promises/:id navigations
     // (React doesn't remount it just because the route param changed), so
     // without this, navigating away from a not-found/error page leaves the
@@ -162,6 +172,15 @@ export default function PromiseDetail() {
   // Caught explicitly rather than left to reject silently, so the screen
   // shows a warning instead of quietly displaying a stale score/history.
   const handleOutcomeLogged = async () => {
+    // This closure was bound to `id` at the render that mounted the
+    // LogOutcome instance now calling it. If the route has since moved on
+    // to a different promise (the check-in's POST was still in flight when
+    // the user navigated away), ignore it entirely - it must not increment
+    // the shared sequence counter or touch this page's state at all.
+    if (id !== currentIdRef.current) {
+      return;
+    }
+
     const seq = ++requestSeqRef.current;
     setRefreshError(null);
     try {

@@ -603,4 +603,54 @@ describe('PromiseDetail (self-promise)', () => {
       expect(screen.getByText('30')).toBeInTheDocument();
     });
   });
+
+  test('a check-in still in flight when the user navigates away does not overwrite the new promise', async () => {
+    const user = userEvent.setup();
+    const otherSelfPromise = { ...mockSelfPromise, id: 'prm_002' };
+
+    getPromises.mockResolvedValue([mockSelfPromise]);
+    getSelfTrust.mockResolvedValue(mockSelfTrust);
+    getOutcomes.mockResolvedValue([]);
+
+    renderWithNavigableRouter('prm_self_001');
+
+    await waitFor(() => {
+      expect(screen.getByText('Log a Check-in')).toBeInTheDocument();
+    });
+
+    // The check-in's own POST is slow and still pending when the user
+    // navigates away to a different self-promise.
+    let resolveLogOutcome;
+    logOutcome.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveLogOutcome = resolve;
+        })
+    );
+
+    await user.click(screen.getByLabelText('I did it'));
+    await user.click(screen.getByRole('button', { name: 'Log check-in' }));
+
+    // Navigate to the other self-promise before that POST resolves.
+    getPromises.mockResolvedValue([otherSelfPromise]);
+    getSelfTrust.mockResolvedValue({ score: 30, count: 1 });
+    getOutcomes.mockResolvedValue([]);
+
+    await user.click(screen.getByText('navigate to /promises/prm_002'));
+
+    await waitFor(() => {
+      expect(screen.getByText('30')).toBeInTheDocument();
+    });
+
+    // Now let the stale check-in's POST resolve. Its onLogged callback is
+    // still bound to the old promise (prm_self_001) and must not fetch or
+    // apply that promise's data over what's now on screen.
+    resolveLogOutcome(mockOutcome);
+    await waitFor(() => {
+      expect(getSelfTrust).toHaveBeenCalledTimes(2); // initial loads only
+    });
+
+    expect(screen.getByText('30')).toBeInTheDocument();
+    expect(screen.queryByText('72')).not.toBeInTheDocument();
+  });
 });
