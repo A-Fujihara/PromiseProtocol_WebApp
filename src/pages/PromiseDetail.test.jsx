@@ -102,6 +102,7 @@ function renderWithNavigableRouter(startId) {
   return render(
     <MemoryRouter initialEntries={[`/promises/${startId}`]}>
       <NavigateButton to="/promises/prm_002" />
+      <NavigateButton to="/promises/prm_999" />
       <Routes>
         <Route path="/promises/:id" element={<PromiseDetail />} />
       </Routes>
@@ -539,5 +540,67 @@ describe('PromiseDetail (self-promise)', () => {
       screen.queryByText('Failed to load promise details. Please try again.')
     ).not.toBeInTheDocument();
     expect(screen.getByText('dev_user_001')).toBeInTheDocument();
+  });
+
+  test('leaving the not-found state does not stick on the next route', async () => {
+    const user = userEvent.setup();
+    // prm_999 matches nothing, so the initial load lands on "not found".
+    getPromises.mockResolvedValue([mockKeptPromise]);
+    getAssessments.mockResolvedValue([]);
+
+    renderWithNavigableRouter('prm_999');
+
+    await waitFor(() => {
+      expect(screen.getByText('Promise not found.')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText('navigate to /promises/prm_002'));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Build the dashboard screen')
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Promise not found.')).not.toBeInTheDocument();
+  });
+
+  test("navigating between two self-promises does not show the previous one's score while the new one loads", async () => {
+    const user = userEvent.setup();
+    const otherSelfPromise = { ...mockSelfPromise, id: 'prm_002' };
+
+    getPromises.mockResolvedValue([mockSelfPromise]);
+    getSelfTrust.mockResolvedValue(mockSelfTrust);
+    getOutcomes.mockResolvedValue([]);
+
+    renderWithNavigableRouter('prm_self_001');
+
+    await waitFor(() => {
+      expect(screen.getByText('72')).toBeInTheDocument();
+    });
+
+    // The next promise's own fetch is slow, so the previous score must not
+    // still be showing while it's in flight.
+    let resolveNext;
+    const nextFetch = new Promise((resolve) => {
+      resolveNext = resolve;
+    });
+    getPromises.mockResolvedValue([otherSelfPromise]);
+    getSelfTrust.mockImplementation(() =>
+      nextFetch.then(() => ({ score: 30, count: 1 }))
+    );
+    getOutcomes.mockImplementation(() => nextFetch.then(() => []));
+
+    await user.click(screen.getByText('navigate to /promises/prm_002'));
+
+    // Still loading the new promise - the old score should be gone, not
+    // lingering on screen.
+    await waitFor(() => {
+      expect(screen.queryByText('72')).not.toBeInTheDocument();
+    });
+
+    resolveNext();
+    await waitFor(() => {
+      expect(screen.getByText('30')).toBeInTheDocument();
+    });
   });
 });

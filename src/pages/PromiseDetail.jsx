@@ -97,6 +97,20 @@ export default function PromiseDetail() {
   );
 
   useEffect(() => {
+    // PP-B3-fix: PromiseDetail is reused across /promises/:id navigations
+    // (React doesn't remount it just because the route param changed), so
+    // without this, navigating away from a not-found/error page leaves the
+    // new page stuck on that state, and self-to-self navigation can show the
+    // previous promise's score/history until the new fetch resolves.
+    setLoading(true);
+    setError(null);
+    setNotFound(false);
+    setPromise(null);
+    setAssessments([]);
+    setSelfTrust(null);
+    setOutcomes([]);
+    setRefreshError(null);
+
     const seq = ++requestSeqRef.current;
 
     async function fetchData() {
