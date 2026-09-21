@@ -52,46 +52,58 @@ export default function PromiseDetail() {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [refreshError, setRefreshError] = useState(null);
-  // PP-B3: guards against overlapping fetchSelfPromiseData calls (two quick
-  // check-ins, or a route change mid-fetch) landing out of order and letting
-  // a slower, older response overwrite a newer one.
-  const fetchSeqRef = useRef(0);
+  // PP-B3/PP-B3-fix: one generation counter for the whole page load, not
+  // just the self-promise branch, so navigating to an assessed or missing
+  // promise still invalidates a slower, still-in-flight self-promise fetch
+  // left over from the previous route - that branch never calls
+  // fetchSelfPromiseData itself, so a guard scoped only to that function
+  // would never advance and would miss this case.
+  const requestSeqRef = useRef(0);
 
   // PP-B3: pulled out so it can be re-run standalone after a new check-in is
   // logged, without re-fetching the promise itself or flipping loading/error
-  // state for what's just a background refresh.
-  const fetchSelfPromiseData = useCallback(async () => {
-    const seq = ++fetchSeqRef.current;
-    let trustData, outcomeData;
-    try {
-      [trustData, outcomeData] = await Promise.all([
-        getSelfTrust(id, CURRENT_USER),
-        getOutcomes(id, CURRENT_USER),
-      ]);
-    } catch (err) {
-      // Only the most recent request's failure is worth surfacing - an
-      // older, superseded request failing after a newer one already
-      // succeeded isn't a real problem for what's on screen.
-      if (seq === fetchSeqRef.current) {
-        throw err;
+  // state for what's just a background refresh. Takes the caller's sequence
+  // number rather than minting its own, so it shares one generation counter
+  // with the route-level load.
+  const fetchSelfPromiseData = useCallback(
+    async (seq) => {
+      let trustData, outcomeData;
+      try {
+        [trustData, outcomeData] = await Promise.all([
+          getSelfTrust(id, CURRENT_USER),
+          getOutcomes(id, CURRENT_USER),
+        ]);
+      } catch (err) {
+        // Only the most recent request's failure is worth surfacing - an
+        // older, superseded request failing after a newer one already
+        // succeeded (or after the route moved on) isn't a real problem for
+        // what's on screen.
+        if (seq === requestSeqRef.current) {
+          throw err;
+        }
+        return;
       }
-      return;
-    }
 
-    // A newer request started (and possibly already finished) since this
-    // one began - discard these now-stale results rather than apply them.
-    if (seq !== fetchSeqRef.current) {
-      return;
-    }
+      // A newer request started (and possibly already finished) since this
+      // one began - discard these now-stale results rather than apply them.
+      if (seq !== requestSeqRef.current) {
+        return;
+      }
 
-    setSelfTrust(trustData);
-    setOutcomes(outcomeData);
-  }, [id]);
+      setSelfTrust(trustData);
+      setOutcomes(outcomeData);
+    },
+    [id]
+  );
 
   useEffect(() => {
+    const seq = ++requestSeqRef.current;
+
     async function fetchData() {
       try {
         const allPromises = await getPromises(CURRENT_USER);
+        if (seq !== requestSeqRef.current) return;
+
         const matched = allPromises.find((p) => p.id === id);
 
         if (!matched) {
@@ -105,18 +117,23 @@ export default function PromiseDetail() {
         // check-in history, assessed promises keep the existing assessment
         // flow untouched (per AC regression requirement).
         if (matched.kind === 'self') {
-          await fetchSelfPromiseData();
+          await fetchSelfPromiseData(seq);
         } else {
           const allAssessments = await getAssessments();
+          if (seq !== requestSeqRef.current) return;
           const linkedAssessments = allAssessments.filter(
             (a) => a.promiseId === id
           );
           setAssessments(linkedAssessments);
         }
       } catch (err) {
-        setError('Failed to load promise details. Please try again.');
+        if (seq === requestSeqRef.current) {
+          setError('Failed to load promise details. Please try again.');
+        }
       } finally {
-        setLoading(false);
+        if (seq === requestSeqRef.current) {
+          setLoading(false);
+        }
       }
     }
 
@@ -131,13 +148,16 @@ export default function PromiseDetail() {
   // Caught explicitly rather than left to reject silently, so the screen
   // shows a warning instead of quietly displaying a stale score/history.
   const handleOutcomeLogged = async () => {
+    const seq = ++requestSeqRef.current;
     setRefreshError(null);
     try {
-      await fetchSelfPromiseData();
+      await fetchSelfPromiseData(seq);
     } catch {
-      setRefreshError(
-        'Check-in saved, but the score and history could not be refreshed. Reload the page to see the latest.'
-      );
+      if (seq === requestSeqRef.current) {
+        setRefreshError(
+          'Check-in saved, but the score and history could not be refreshed. Reload the page to see the latest.'
+        );
+      }
     }
   };
 

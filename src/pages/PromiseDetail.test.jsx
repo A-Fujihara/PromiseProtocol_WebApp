@@ -1,7 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import PromiseDetail from './PromiseDetail';
 
 vi.mock('../services/api', () => ({
@@ -82,6 +82,26 @@ beforeEach(() => {
 function renderWithRouter(id) {
   return render(
     <MemoryRouter initialEntries={[`/promises/${id}`]}>
+      <Routes>
+        <Route path="/promises/:id" element={<PromiseDetail />} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
+// PP-B3-fix: lets a test navigate between two real routes within the same
+// MemoryRouter, since MemoryRouter only reads initialEntries once - a
+// re-render with different initialEntries does not actually change the
+// route.
+function NavigateButton({ to }) {
+  const navigate = useNavigate();
+  return <button onClick={() => navigate(to)}>{`navigate to ${to}`}</button>;
+}
+
+function renderWithNavigableRouter(startId) {
+  return render(
+    <MemoryRouter initialEntries={[`/promises/${startId}`]}>
+      <NavigateButton to="/promises/prm_002" />
       <Routes>
         <Route path="/promises/:id" element={<PromiseDetail />} />
       </Routes>
@@ -471,5 +491,53 @@ describe('PromiseDetail (self-promise)', () => {
 
     expect(screen.getByText('90')).toBeInTheDocument();
     expect(screen.queryByText('72')).not.toBeInTheDocument();
+  });
+
+  test('a slow self-promise fetch left over from the previous route does not corrupt the new page', async () => {
+    const user = userEvent.setup();
+    getPromises.mockResolvedValue([mockSelfPromise]);
+
+    let resolveSlowFetch;
+    const slowFetch = new Promise((resolve) => {
+      resolveSlowFetch = resolve;
+    });
+    getSelfTrust.mockImplementation(() => slowFetch.then(() => mockSelfTrust));
+    getOutcomes.mockImplementation(() => slowFetch.then(() => []));
+
+    renderWithNavigableRouter('prm_self_001');
+
+    await waitFor(() => {
+      expect(getSelfTrust).toHaveBeenCalledTimes(1);
+    });
+
+    // Navigate to a different, assessed promise while that self-promise
+    // fetch is still in flight (slowFetch hasn't resolved yet).
+    getPromises.mockResolvedValue([mockKeptPromise]);
+    getAssessments.mockResolvedValue([
+      { ...mockAssessment, promiseId: 'prm_002' },
+    ]);
+
+    await user.click(screen.getByText('navigate to /promises/prm_002'));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Build the dashboard screen')
+      ).toBeInTheDocument();
+    });
+    expect(screen.getByText('dev_user_001')).toBeInTheDocument();
+
+    // Now let the stale self-promise fetch resolve. It must not overwrite
+    // the assessed promise now on screen, or throw an error over it.
+    resolveSlowFetch();
+    await waitFor(() => {
+      expect(
+        screen.getByText('Build the dashboard screen')
+      ).toBeInTheDocument();
+    });
+
+    expect(
+      screen.queryByText('Failed to load promise details. Please try again.')
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('dev_user_001')).toBeInTheDocument();
   });
 });
