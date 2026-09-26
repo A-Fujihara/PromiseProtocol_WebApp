@@ -188,6 +188,76 @@ describe('MyPromises', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/create');
   });
 
+  test('renders a self-promise under All alongside assessed promises, without crashing or a stake chip', async () => {
+    const selfPromise = {
+      id: 'prm_005',
+      promiserId: 'dev_user_001',
+      promiseeScope: 'self',
+      domain: 'Health',
+      objective: 'Quit smoking',
+      timeline: 90,
+      successCriteria: 'No cigarettes for 90 days',
+      kind: 'self',
+      visibility: 'private',
+      stake: null,
+      status: 'pending',
+      createdAt: '2026-04-05',
+    };
+    getPromises.mockResolvedValue([...mockPromises, selfPromise]);
+
+    renderWithRouter();
+
+    await waitFor(() => {
+      expect(screen.getByText('Quit smoking')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('4 Total Commitments')).toBeInTheDocument();
+    expect(screen.getByText('Pay rent')).toBeInTheDocument();
+    expect(screen.getByText('Ship feature')).toBeInTheDocument();
+    expect(screen.getByText('Fix bug')).toBeInTheDocument();
+    expect(screen.queryByText('No deposit')).not.toBeInTheDocument();
+  });
+
+  test('filter row does not throw on mixed promise kinds, and the self-promise stays under Active', async () => {
+    const user = userEvent.setup();
+    const selfPromise = {
+      id: 'prm_005',
+      promiserId: 'dev_user_001',
+      promiseeScope: 'self',
+      domain: 'Health',
+      objective: 'Quit smoking',
+      timeline: 90,
+      successCriteria: 'No cigarettes for 90 days',
+      kind: 'self',
+      visibility: 'private',
+      stake: null,
+      status: 'pending',
+      createdAt: '2026-04-05',
+    };
+    getPromises.mockResolvedValue([...mockPromises, selfPromise]);
+
+    renderWithRouter();
+
+    await waitFor(() => {
+      expect(screen.getByText('Quit smoking')).toBeInTheDocument();
+    });
+
+    await expect(
+      user.click(screen.getByRole('button', { name: 'Active' }))
+    ).resolves.not.toThrow();
+    expect(screen.getByText('Quit smoking')).toBeInTheDocument();
+    expect(screen.getByText('Pay rent')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Kept' }));
+    expect(screen.queryByText('Quit smoking')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Broken' }));
+    expect(screen.queryByText('Quit smoking')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'All' }));
+    expect(screen.getByText('Quit smoking')).toBeInTheDocument();
+  });
+
   test('clicking a promise card triggers detail navigation behavior', async () => {
     const user = userEvent.setup();
     getPromises.mockResolvedValue(mockPromises);
