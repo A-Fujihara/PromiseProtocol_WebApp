@@ -242,9 +242,7 @@ describe('MyPromises', () => {
       expect(screen.getByText('Quit smoking')).toBeInTheDocument();
     });
 
-    await expect(
-      user.click(screen.getByRole('button', { name: 'Active' }))
-    ).resolves.not.toThrow();
+    await user.click(screen.getByRole('button', { name: 'Active' }));
     expect(screen.getByText('Quit smoking')).toBeInTheDocument();
     expect(screen.getByText('Pay rent')).toBeInTheDocument();
 
