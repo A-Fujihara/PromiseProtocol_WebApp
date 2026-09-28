@@ -79,20 +79,22 @@ export default function PromiseCard({
         <div className={styles.objective}>{promise.objective}</div>
         <div className={styles.cardBottomRow}>
           <div className={styles.cardFooterLeft}>
-            <span className={styles.stakeChip}>
-              <span className={styles.stakeIcon}>
-                {promise.stake?.type === 'financial'
-                  ? '$'
-                  : promise.stake
-                    ? '◎'
-                    : '—'}
+            {promise.kind !== 'self' && (
+              <span className={styles.stakeChip}>
+                <span className={styles.stakeIcon}>
+                  {promise.stake?.type === 'financial'
+                    ? '$'
+                    : promise.stake
+                      ? '◎'
+                      : '—'}
+                </span>
+                {!promise.stake
+                  ? 'No deposit'
+                  : promise.stake.type === 'financial'
+                    ? `$${promise.stake.amount} deposited`
+                    : 'Reputation deposited'}
               </span>
-              {!promise.stake
-                ? 'No deposit'
-                : promise.stake.type === 'financial'
-                  ? `$${promise.stake.amount} deposited`
-                  : 'Reputation deposited'}
-            </span>
+            )}
             {showDateAdded && (
               <span className={styles.createdAt}>Created {dateAddedStr}</span>
             )}

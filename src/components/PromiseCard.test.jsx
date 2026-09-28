@@ -41,7 +41,22 @@ describe('PromiseCard', () => {
     expect(screen.getByText('Reputation deposited')).toBeInTheDocument();
   });
 
-  test('renders "No deposit" instead of crashing when stake is null (self-promise)', () => {
+  test('renders "No deposit" instead of crashing when stake is null (assessed promise)', () => {
+    render(
+      <PromiseCard
+        promise={{
+          ...basePromise,
+          stake: null,
+        }}
+      />
+    );
+
+    expect(screen.getByText('No deposit')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.queryByText('◎')).not.toBeInTheDocument();
+  });
+
+  test('renders self-promises without a stake chip at all (PP-B4)', () => {
     render(
       <PromiseCard
         promise={{
@@ -53,8 +68,25 @@ describe('PromiseCard', () => {
       />
     );
 
-    expect(screen.getByText('No deposit')).toBeInTheDocument();
-    expect(screen.getByText('—')).toBeInTheDocument();
-    expect(screen.queryByText('◎')).not.toBeInTheDocument();
+    expect(screen.queryByText('No deposit')).not.toBeInTheDocument();
+    expect(screen.queryByText('$100 deposited')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reputation deposited')).not.toBeInTheDocument();
+  });
+
+  test('self-promises still render existing fields without errors', () => {
+    render(
+      <PromiseCard
+        promise={{
+          ...basePromise,
+          kind: 'self',
+          visibility: 'private',
+          promiseeScope: 'self',
+          stake: null,
+        }}
+        showPromiserId={true}
+      />
+    );
+
+    expect(screen.getByText('Build the dashboard screen')).toBeInTheDocument();
   });
 });
