@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { logOutcome } from '../services/api';
+import { CURRENT_USER } from '../services/currentUser';
 import styles from './LogOutcome.module.css';
-
-const CURRENT_USER = 'dev_user_001'; // Epic 4 Auth stub
 
 // PP-B2: the five behavior outcomes from SelfTrust.VALID_OUTCOMES, given
 // plain-language, non-shameful labels. failed_but_noticed in particular

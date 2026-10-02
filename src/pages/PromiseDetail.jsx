@@ -6,11 +6,10 @@ import {
   getSelfTrust,
   getOutcomes,
 } from '../services/api';
+import { CURRENT_USER } from '../services/currentUser';
 import SelfTrustScore from '../components/SelfTrustScore';
 import LogOutcome from '../components/LogOutcome';
 import styles from './PromiseDetail.module.css';
-
-const CURRENT_USER = 'dev_user_001'; // Epic 4 Auth stub
 
 const STATUS = {
   pending: {

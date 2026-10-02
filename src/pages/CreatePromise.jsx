@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createPromise, createSelfPromise } from '../services/api';
+import { CURRENT_USER } from '../services/currentUser';
 import styles from './CreatePromise.module.css';
 
 const MODE_ASSESSED = 'assessed';
@@ -16,8 +17,6 @@ const INITIAL_FORM = {
   stakeType: 'reputational',
   stakeAmount: '',
 };
-
-const CURRENT_USER = 'dev_user_001';
 
 export default function CreatePromise() {
   const [form, setForm] = useState(INITIAL_FORM);
