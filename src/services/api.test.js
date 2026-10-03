@@ -1,6 +1,7 @@
 import { vi, describe, test, expect, beforeEach } from 'vitest';
 import {
   getPromises,
+  getPromiseById,
   createPromise,
   createSelfPromise,
   logOutcome,
@@ -62,6 +63,34 @@ describe('API Functions', () => {
     expect(httpService.get).toHaveBeenCalledWith('/api/promises', {
       params: { userId: 'dev_user_001' },
     });
+  });
+
+  test('GET /api/promises/:id with userId', async () => {
+    const mockResData = { id: 'prm_self_001', kind: 'self' };
+    httpService.get.mockResolvedValue({ data: mockResData });
+    const res = await getPromiseById('prm_self_001', 'dev_user_001');
+    expect(res).toEqual(mockResData);
+    expect(httpService.get).toHaveBeenCalledWith('/api/promises/prm_self_001', {
+      params: { userId: 'dev_user_001' },
+    });
+  });
+
+  test('GET /api/promises/:id without userId', async () => {
+    httpService.get.mockResolvedValue({ data: { id: 'prm_001' } });
+    await getPromiseById('prm_001');
+    expect(httpService.get).toHaveBeenCalledWith('/api/promises/prm_001', {
+      params: undefined,
+    });
+  });
+
+  test('GET /api/promises/:id surfaces the status on failure', async () => {
+    httpService.get.mockRejectedValue({ response: { status: 404 } });
+    try {
+      await getPromiseById('prm_self_001', 'dev_user_001');
+      throw new Error('Did not throw error');
+    } catch (error) {
+      expect(error.status).toBe(404);
+    }
   });
 
   test('POST /api/promises', async () => {

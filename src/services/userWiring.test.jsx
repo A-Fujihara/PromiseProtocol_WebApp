@@ -47,6 +47,9 @@ const serverGet = (url, config = {}) => {
   if (url === '/api/promises') {
     return Promise.resolve({ data: isOwner ? [selfPromise] : [] });
   }
+  if (url === `/api/promises/${selfPromise.id}`) {
+    return isOwner ? Promise.resolve({ data: selfPromise }) : notFound();
+  }
   if (url === '/api/assessments') {
     return Promise.resolve({ data: [] });
   }
@@ -78,7 +81,7 @@ describe('PP-B5: requesting user reaches the promises API', () => {
     });
   });
 
-  test('self-promise detail fetches self-trust and outcomes with the current user, no 404', async () => {
+  test('self-promise detail fetches the promise, self-trust and outcomes with the current user, no 404', async () => {
     render(
       <MemoryRouter initialEntries={[`/promises/${selfPromise.id}`]}>
         <Routes>
@@ -94,6 +97,10 @@ describe('PP-B5: requesting user reaches the promises API', () => {
       screen.queryByText(/Failed to load promise details/i)
     ).not.toBeInTheDocument();
 
+    expect(httpService.get).toHaveBeenCalledWith(
+      `/api/promises/${selfPromise.id}`,
+      { params: { userId: CURRENT_USER } }
+    );
     expect(httpService.get).toHaveBeenCalledWith(
       `/api/promises/${selfPromise.id}/self-trust`,
       { params: { userId: CURRENT_USER } }
