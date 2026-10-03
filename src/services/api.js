@@ -15,6 +15,24 @@ export const getPromises = async (userId) => {
   }
 };
 
+// PP-B5: single promise by id. userId is what lets the server's PP-A6
+// ownership check return a private self-promise to its owner; without it the
+// server answers 404, same as for a promise that doesn't exist.
+export const getPromiseById = async (id, userId) => {
+  try {
+    const res = await httpService.get(`/api/promises/${id}`, {
+      params: userId ? { userId } : undefined,
+    });
+    return res.data;
+  } catch (error) {
+    throw {
+      message: 'Failed to GET /api/promises/:id',
+      originalError: error,
+      status: error.response?.status,
+    };
+  }
+};
+
 export const createPromise = async (req) => {
   try {
     const res = await httpService.post('/api/promises', req);

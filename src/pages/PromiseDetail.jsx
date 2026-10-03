@@ -1,16 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  getPromises,
+  getPromiseById,
   getAssessments,
   getSelfTrust,
   getOutcomes,
 } from '../services/api';
+import { CURRENT_USER } from '../services/currentUser';
 import SelfTrustScore from '../components/SelfTrustScore';
 import LogOutcome from '../components/LogOutcome';
 import styles from './PromiseDetail.module.css';
-
-const CURRENT_USER = 'dev_user_001'; // Epic 4 Auth stub
 
 const STATUS = {
   pending: {
@@ -125,15 +124,23 @@ export default function PromiseDetail() {
 
     async function fetchData() {
       try {
-        const allPromises = await getPromises(CURRENT_USER);
-        if (seq !== requestSeqRef.current) return;
-
-        const matched = allPromises.find((p) => p.id === id);
-
-        if (!matched) {
-          setNotFound(true);
-          return;
+        // PP-B5: fetched by id with the requesting user, so the server's
+        // PP-A6 check can return the owner's private self-promise. A 404
+        // covers both "doesn't exist" and "private and not yours" - the
+        // server deliberately doesn't distinguish them. Only this call's
+        // 404 means not-found; a 404 from the self-trust/outcomes fetches
+        // below still falls through to the generic load error.
+        let matched;
+        try {
+          matched = await getPromiseById(id, CURRENT_USER);
+        } catch (err) {
+          if (err?.status === 404) {
+            if (seq === requestSeqRef.current) setNotFound(true);
+            return;
+          }
+          throw err;
         }
+        if (seq !== requestSeqRef.current) return;
 
         setPromise(matched);
 

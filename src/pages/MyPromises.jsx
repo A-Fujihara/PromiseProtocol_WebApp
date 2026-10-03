@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PromiseCard from '../components/PromiseCard';
 import { getPromises } from '../services/api';
+import { CURRENT_USER } from '../services/currentUser';
 import styles from './MyPromises.module.css';
-
-const CURRENT_USER = 'dev_user_001'; // Epic 4 Auth stub
 
 const StatusSearchFilter = Object.freeze({
   All: 0,

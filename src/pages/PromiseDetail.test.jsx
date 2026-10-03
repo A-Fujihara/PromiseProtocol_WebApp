@@ -5,7 +5,7 @@ import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import PromiseDetail from './PromiseDetail';
 
 vi.mock('../services/api', () => ({
-  getPromises: vi.fn(),
+  getPromiseById: vi.fn(),
   getAssessments: vi.fn(),
   getSelfTrust: vi.fn(),
   getOutcomes: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock('../services/api', () => ({
 }));
 
 import {
-  getPromises,
+  getPromiseById,
   getAssessments,
   getSelfTrust,
   getOutcomes,
@@ -112,7 +112,7 @@ function renderWithNavigableRouter(startId) {
 
 describe('PromiseDetail', () => {
   test('renders all promise fields correctly with mocked data', async () => {
-    getPromises.mockResolvedValue([mockPendingPromise]);
+    getPromiseById.mockResolvedValue(mockPendingPromise);
     getAssessments.mockResolvedValue([]);
 
     renderWithRouter('prm_001');
@@ -130,7 +130,7 @@ describe('PromiseDetail', () => {
   });
 
   test('Submit Assessment CTA is visible when status is pending', async () => {
-    getPromises.mockResolvedValue([mockPendingPromise]);
+    getPromiseById.mockResolvedValue(mockPendingPromise);
     getAssessments.mockResolvedValue([]);
 
     renderWithRouter('prm_001');
@@ -141,7 +141,7 @@ describe('PromiseDetail', () => {
   });
 
   test('Submit Assessment CTA is hidden when status is KEPT', async () => {
-    getPromises.mockResolvedValue([mockKeptPromise]);
+    getPromiseById.mockResolvedValue(mockKeptPromise);
     getAssessments.mockResolvedValue([]);
 
     renderWithRouter('prm_002');
@@ -156,7 +156,7 @@ describe('PromiseDetail', () => {
   });
 
   test('renders empty assessment state when no assessments exist', async () => {
-    getPromises.mockResolvedValue([mockPendingPromise]);
+    getPromiseById.mockResolvedValue(mockPendingPromise);
     getAssessments.mockResolvedValue([]);
 
     renderWithRouter('prm_001');
@@ -169,7 +169,7 @@ describe('PromiseDetail', () => {
   });
 
   test('lists assessments associated with the promise', async () => {
-    getPromises.mockResolvedValue([mockPendingPromise]);
+    getPromiseById.mockResolvedValue(mockPendingPromise);
     getAssessments.mockResolvedValue([mockAssessment]);
 
     renderWithRouter('prm_001');
@@ -181,8 +181,8 @@ describe('PromiseDetail', () => {
     expect(screen.getByText('Apr 5, 2026')).toBeInTheDocument();
   });
 
-  test('renders not found state when id does not match any promise', async () => {
-    getPromises.mockResolvedValue([mockPendingPromise]);
+  test('renders not found state when the server answers 404', async () => {
+    getPromiseById.mockRejectedValue({ status: 404 });
     getAssessments.mockResolvedValue([]);
 
     renderWithRouter('prm_999');
@@ -192,8 +192,23 @@ describe('PromiseDetail', () => {
     });
   });
 
+  test('a 404 from the self-trust fetch is a load error, not "not found"', async () => {
+    getPromiseById.mockResolvedValue(mockSelfPromise);
+    getSelfTrust.mockRejectedValue({ status: 404 });
+    getOutcomes.mockResolvedValue([]);
+
+    renderWithRouter('prm_self_001');
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Failed to load promise details. Please try again.')
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Promise not found.')).not.toBeInTheDocument();
+  });
+
   test('renders error state when API call fails', async () => {
-    getPromises.mockRejectedValue(new Error('Network error'));
+    getPromiseById.mockRejectedValue(new Error('Network error'));
     getAssessments.mockRejectedValue(new Error('Network error'));
 
     renderWithRouter('prm_001');
@@ -206,7 +221,7 @@ describe('PromiseDetail', () => {
   });
 
   test('back navigation button is present', async () => {
-    getPromises.mockResolvedValue([mockPendingPromise]);
+    getPromiseById.mockResolvedValue(mockPendingPromise);
     getAssessments.mockResolvedValue([]);
 
     renderWithRouter('prm_001');
@@ -217,7 +232,7 @@ describe('PromiseDetail', () => {
   });
 
   test('renders promiseeName when present', async () => {
-    getPromises.mockResolvedValue([mockPendingPromise]);
+    getPromiseById.mockResolvedValue(mockPendingPromise);
     getAssessments.mockResolvedValue([]);
 
     renderWithRouter('prm_001');
@@ -232,7 +247,7 @@ describe('PromiseDetail', () => {
       ...mockPendingPromise,
       promiseeName: undefined,
     };
-    getPromises.mockResolvedValue([promiseWithoutName]);
+    getPromiseById.mockResolvedValue(promiseWithoutName);
     getAssessments.mockResolvedValue([]);
 
     renderWithRouter('prm_001');
@@ -253,7 +268,7 @@ describe('PromiseDetail', () => {
       visibility: 'private',
       stake: null,
     };
-    getPromises.mockResolvedValue([selfPromise]);
+    getPromiseById.mockResolvedValue(selfPromise);
     getSelfTrust.mockResolvedValue({ score: 50, count: 0 });
     getOutcomes.mockResolvedValue([]);
 
@@ -264,14 +279,14 @@ describe('PromiseDetail', () => {
     });
   });
 
-  test('requests promises scoped to the current user', async () => {
-    getPromises.mockResolvedValue([mockPendingPromise]);
+  test('requests the promise by id, scoped to the current user', async () => {
+    getPromiseById.mockResolvedValue(mockPendingPromise);
     getAssessments.mockResolvedValue([]);
 
     renderWithRouter('prm_001');
 
     await waitFor(() => {
-      expect(getPromises).toHaveBeenCalledWith('dev_user_001');
+      expect(getPromiseById).toHaveBeenCalledWith('prm_001', 'dev_user_001');
     });
   });
 });
@@ -280,7 +295,7 @@ describe('PromiseDetail', () => {
 // check-in form, in place of the assessed-promise assessment flow.
 describe('PromiseDetail (self-promise)', () => {
   test('renders the live self-trust score for a self-promise', async () => {
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -293,7 +308,7 @@ describe('PromiseDetail (self-promise)', () => {
   });
 
   test('renders check-in history for a self-promise', async () => {
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([mockOutcome]);
 
@@ -306,7 +321,7 @@ describe('PromiseDetail (self-promise)', () => {
   });
 
   test('renders empty check-in history state when no outcomes exist', async () => {
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -320,7 +335,7 @@ describe('PromiseDetail (self-promise)', () => {
   });
 
   test('renders the check-in form for a self-promise', async () => {
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -333,7 +348,7 @@ describe('PromiseDetail (self-promise)', () => {
   });
 
   test('does not show Submit Assessment CTA for a self-promise, even while pending', async () => {
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -347,7 +362,7 @@ describe('PromiseDetail (self-promise)', () => {
   });
 
   test('does not fetch assessments for a self-promise', async () => {
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -360,7 +375,7 @@ describe('PromiseDetail (self-promise)', () => {
   });
 
   test('requests self-trust and outcomes scoped to the promise and current user', async () => {
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -374,7 +389,7 @@ describe('PromiseDetail (self-promise)', () => {
 
   test('re-fetches score and history after a check-in is logged', async () => {
     const user = userEvent.setup();
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -410,7 +425,7 @@ describe('PromiseDetail (self-promise)', () => {
 
   test('shows a warning, without crashing, when the post-check-in refresh fails', async () => {
     const user = userEvent.setup();
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -448,7 +463,7 @@ describe('PromiseDetail (self-promise)', () => {
 
   test('does not let a slower, older refresh overwrite a newer one', async () => {
     const user = userEvent.setup();
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
     logOutcome.mockResolvedValue(mockOutcome);
@@ -496,7 +511,7 @@ describe('PromiseDetail (self-promise)', () => {
 
   test('a slow self-promise fetch left over from the previous route does not corrupt the new page', async () => {
     const user = userEvent.setup();
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
 
     let resolveSlowFetch;
     const slowFetch = new Promise((resolve) => {
@@ -513,7 +528,7 @@ describe('PromiseDetail (self-promise)', () => {
 
     // Navigate to a different, assessed promise while that self-promise
     // fetch is still in flight (slowFetch hasn't resolved yet).
-    getPromises.mockResolvedValue([mockKeptPromise]);
+    getPromiseById.mockResolvedValue(mockKeptPromise);
     getAssessments.mockResolvedValue([
       { ...mockAssessment, promiseId: 'prm_002' },
     ]);
@@ -544,8 +559,13 @@ describe('PromiseDetail (self-promise)', () => {
 
   test('leaving the not-found state does not stick on the next route', async () => {
     const user = userEvent.setup();
-    // prm_999 matches nothing, so the initial load lands on "not found".
-    getPromises.mockResolvedValue([mockKeptPromise]);
+    // prm_999 is a 404 from the server, so the initial load lands on
+    // "not found"; any other id resolves.
+    getPromiseById.mockImplementation((id) =>
+      id === 'prm_999'
+        ? Promise.reject({ status: 404 })
+        : Promise.resolve(mockKeptPromise)
+    );
     getAssessments.mockResolvedValue([]);
 
     renderWithNavigableRouter('prm_999');
@@ -568,7 +588,7 @@ describe('PromiseDetail (self-promise)', () => {
     const user = userEvent.setup();
     const otherSelfPromise = { ...mockSelfPromise, id: 'prm_002' };
 
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -584,7 +604,7 @@ describe('PromiseDetail (self-promise)', () => {
     const nextFetch = new Promise((resolve) => {
       resolveNext = resolve;
     });
-    getPromises.mockResolvedValue([otherSelfPromise]);
+    getPromiseById.mockResolvedValue(otherSelfPromise);
     getSelfTrust.mockImplementation(() =>
       nextFetch.then(() => ({ score: 30, count: 1 }))
     );
@@ -608,7 +628,7 @@ describe('PromiseDetail (self-promise)', () => {
     const user = userEvent.setup();
     const otherSelfPromise = { ...mockSelfPromise, id: 'prm_002' };
 
-    getPromises.mockResolvedValue([mockSelfPromise]);
+    getPromiseById.mockResolvedValue(mockSelfPromise);
     getSelfTrust.mockResolvedValue(mockSelfTrust);
     getOutcomes.mockResolvedValue([]);
 
@@ -632,7 +652,7 @@ describe('PromiseDetail (self-promise)', () => {
     await user.click(screen.getByRole('button', { name: 'Log check-in' }));
 
     // Navigate to the other self-promise before that POST resolves.
-    getPromises.mockResolvedValue([otherSelfPromise]);
+    getPromiseById.mockResolvedValue(otherSelfPromise);
     getSelfTrust.mockResolvedValue({ score: 30, count: 1 });
     getOutcomes.mockResolvedValue([]);
 
