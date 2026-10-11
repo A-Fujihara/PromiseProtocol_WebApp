@@ -22,4 +22,33 @@
   --pp-border-radius: 0.625rem;
   --pp-amber-dim: rgba(240, 160, 75, 0.3);
   --pp-sidebar-bg: rgba(255, 255, 255, 0.015);
+
+  /* Spacing scale: use for padding, margin and gap */
+  --pp-space-1: 4px;
+  --pp-space-2: 8px;
+  --pp-space-3: 12px;
+  --pp-space-4: 16px;
+  --pp-space-5: 20px;
+  --pp-space-6: 24px;
+  --pp-space-7: 32px;
+  --pp-space-8: 40px;
+  --pp-space-9: 48px;
+  --pp-space-10: 80px;
+
+  /* Off-scale spacing kept as-is to preserve the current layout (PP-B6).
+     Round these onto the scale above in a deliberate design pass. */
+  --pp-space-legacy-2: 2px;
+  --pp-space-legacy-3: 3px;
+  --pp-space-legacy-5: 5px;
+  --pp-space-legacy-6: 6px;
+  --pp-space-legacy-7: 7px;
+  --pp-space-legacy-10: 10px;
+  --pp-space-legacy-14: 14px;
+  --pp-space-legacy-18: 18px;
+  --pp-space-legacy-22: 22px;
+  --pp-space-legacy-26: 26px;
+  --pp-space-legacy-28: 28px;
+  --pp-space-legacy-30: 30px;
+  --pp-space-legacy-36: 36px;
+  --pp-space-legacy-60: 60px;
 }

@@ -4,7 +4,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 32px 0;
+  padding: var(--pp-space-7) 0;
   border-right: 1px solid var(--pp-border);
   background: var(--pp-sidebar-bg);
   position: sticky;
@@ -14,9 +14,9 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 24px 32px 24px;
-  margin-bottom: 20px;
+  gap: var(--pp-space-legacy-10);
+  padding: 0 var(--pp-space-6) var(--pp-space-7) var(--pp-space-6);
+  margin-bottom: var(--pp-space-5);
   border-bottom: 1px solid var(--pp-border);
 }
 
@@ -38,16 +38,16 @@
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 0 12px;
+  gap: var(--pp-space-legacy-2);
+  padding: 0 var(--pp-space-3);
   flex: 1;
 }
 
 .navLink {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: var(--pp-space-legacy-10);
+  padding: var(--pp-space-legacy-10) var(--pp-space-legacy-14);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 400;
@@ -87,8 +87,8 @@
 .user {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 20px 16px 0 16px;
+  gap: var(--pp-space-legacy-10);
+  padding: var(--pp-space-5) var(--pp-space-4) 0 var(--pp-space-4);
   border-top: 1px solid var(--pp-border);
 }
 
@@ -114,6 +114,6 @@
 
 .userRole {
   font-size: 11px;
-  margin-top: 2px;
+  margin-top: var(--pp-space-legacy-2);
   color: var(--pp-text-muted);
 }

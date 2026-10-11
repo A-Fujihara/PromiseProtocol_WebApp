@@ -1,5 +1,5 @@
 .container {
-  padding: 40px 48px;
+  padding: var(--pp-space-8) var(--pp-space-9);
   flex: 1;
   overflow-y: auto;
   height: 100vh;
@@ -20,7 +20,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 40px;
+  margin-bottom: var(--pp-space-8);
 }
 
 .heading {
@@ -34,14 +34,14 @@
 .subheading {
   font-size: 14px;
   color: var(--pp-text-secondary);
-  margin-top: 4px;
+  margin-top: var(--pp-space-1);
 }
 
 .newPromiseButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
+  gap: var(--pp-space-2);
+  padding: var(--pp-space-legacy-10) var(--pp-space-5);
   background: var(--pp-accent);
   color: var(--pp-bg);
   border: none;
@@ -55,15 +55,15 @@
 .statsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 36px;
+  gap: var(--pp-space-legacy-14);
+  margin-bottom: var(--pp-space-legacy-36);
 }
 
 .statCard {
   background: var(--pp-surface);
   border: 1px solid var(--pp-border);
   border-radius: 14px;
-  padding: 22px 24px;
+  padding: var(--pp-space-legacy-22) var(--pp-space-6);
 }
 
 .statLabel {
@@ -71,7 +71,7 @@
   color: var(--pp-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 14px;
+  margin-bottom: var(--pp-space-legacy-14);
 }
 
 .statValue {
@@ -79,7 +79,7 @@
   font-weight: 900;
   letter-spacing: -0.05em;
   line-height: 1;
-  margin-bottom: 8px;
+  margin-bottom: var(--pp-space-2);
 }
 
 .statValueDefault {
@@ -108,7 +108,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 24px;
+  padding: var(--pp-space-legacy-18) var(--pp-space-6);
   border-bottom: 1px solid var(--pp-border);
 }
 
@@ -129,7 +129,7 @@
 }
 
 .emptyState {
-  padding: 40px 24px;
+  padding: var(--pp-space-8) var(--pp-space-6);
   text-align: center;
 }
 
