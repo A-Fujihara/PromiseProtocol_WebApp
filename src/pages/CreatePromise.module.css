@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 48px 16px;
+  padding: var(--pp-space-9) var(--pp-space-4);
   color: #f4f5ff;
 }
 
@@ -13,24 +13,24 @@
   background: #151723;
   border: 1px solid #2a2f45;
   border-radius: var(--pp-border-radius);
-  padding: 28px;
+  padding: var(--pp-space-legacy-28);
 }
 
 .heading {
   font-size: 30px;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: var(--pp-space-2);
 }
 
 .subheading {
   color: #b7bdd6;
-  margin-bottom: 20px;
+  margin-bottom: var(--pp-space-5);
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--pp-space-legacy-10);
 }
 
 .form label {
@@ -44,7 +44,7 @@
   width: 100%;
   border-radius: var(--pp-border-radius);
   border: 1px solid #3a4260;
-  padding: 10px 12px;
+  padding: var(--pp-space-legacy-10) var(--pp-space-3);
   background: #101321;
   color: #f4f5ff;
 }
@@ -54,18 +54,18 @@
 }
 
 .fieldset {
-  margin-top: 8px;
+  margin-top: var(--pp-space-2);
   border: 1px solid #3a4260;
   border-radius: var(--pp-border-radius);
-  padding: 12px;
+  padding: var(--pp-space-3);
   display: flex;
-  gap: 24px;
+  gap: var(--pp-space-6);
 }
 
 .inlineOption {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--pp-space-2);
 }
 
 .inlineOption input {
@@ -78,10 +78,10 @@
 }
 
 .submitButton {
-  margin-top: 12px;
+  margin-top: var(--pp-space-3);
   border: none;
   border-radius: var(--pp-border-radius);
-  padding: 12px 14px;
+  padding: var(--pp-space-3) var(--pp-space-legacy-14);
   background: #3f7cff;
   color: #fff;
   font-weight: 700;
@@ -100,6 +100,6 @@
 
 .success {
   color: #7ee787;
-  margin-top: 12px;
+  margin-top: var(--pp-space-3);
   font-weight: 600;
 }

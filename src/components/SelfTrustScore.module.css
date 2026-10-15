@@ -2,18 +2,18 @@
   background: var(--pp-surface);
   border: 1px solid var(--pp-border);
   border-radius: var(--pp-border-radius);
-  padding: 20px 24px;
+  padding: var(--pp-space-5) var(--pp-space-6);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: var(--pp-space-1);
 }
 
 /* ─── Score ───────────────────────────────────────────────────────── */
 .scoreRow {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: var(--pp-space-1);
 }
 
 .score {
@@ -43,8 +43,8 @@
 .meta {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 6px;
+  gap: var(--pp-space-legacy-6);
+  margin-top: var(--pp-space-legacy-6);
   font-size: 12px;
 }
 
